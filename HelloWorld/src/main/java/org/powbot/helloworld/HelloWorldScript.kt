@@ -16,4 +16,3 @@ class HelloWorldScript : AbstractScript() {
         controller.stop()
     }
 }
-
