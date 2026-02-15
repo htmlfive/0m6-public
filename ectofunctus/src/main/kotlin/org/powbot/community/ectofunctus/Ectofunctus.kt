@@ -1,7 +1,10 @@
 package org.powbot.community.ectofunctus
 
+import org.powbot.api.Condition
+import org.powbot.api.Tile
 import org.powbot.api.rt4.Skills
 import org.powbot.api.rt4.walking.model.Skill
+import org.powbot.api.script.AbstractScript
 import org.powbot.api.script.ScriptCategory
 import org.powbot.api.script.ScriptManifest
 import org.powbot.api.script.paint.PaintBuilder
@@ -11,8 +14,8 @@ import org.powbot.community.ectofunctus.tasks.ProcessBonesTask
 import org.powbot.community.ectofunctus.tasks.ShouldBank
 import org.powbot.community.ectofunctus.tasks.ShouldProcessBones
 import org.powbot.community.ectofunctus.tasks.ShouldWorship
+import org.powbot.community.ectofunctus.tasks.Task
 import org.powbot.community.ectofunctus.tasks.WorshipTask
-import org.powbot.community.mixology.structure.TreeScript
 
 @ScriptManifest(
     name = "Ectofunctus",
@@ -21,8 +24,22 @@ import org.powbot.community.mixology.structure.TreeScript
     author = "0m6",
     category = ScriptCategory.Prayer
 )
-class Ectofunctus : TreeScript() {
+class Ectofunctus : AbstractScript() {
+    val castleWarsBankTile: Tile = EctofunctusConstants.CASTLE_WARS_BANK_TILE
+    val grinderTile: Tile = EctofunctusConstants.GRINDER_TILE
+    val ectofuntusTile: Tile = EctofunctusConstants.ECTOFUNTUS_TILE
+    val batchSize: Int = EctofunctusConstants.DEFAULT_BATCH_SIZE
+
     private var startPrayerXp: Int = 0
+    private var taskDescription: String = "Initializing"
+
+    private lateinit var shouldBank: ShouldBank
+    private lateinit var shouldProcessBones: ShouldProcessBones
+    private lateinit var shouldWorship: ShouldWorship
+    private lateinit var bankTask: BankTask
+    private lateinit var processBonesTask: ProcessBonesTask
+    private lateinit var worshipTask: WorshipTask
+    private lateinit var idleTask: IdleTask
 
     companion object {
         @JvmStatic
@@ -34,34 +51,30 @@ class Ectofunctus : TreeScript() {
 
     override fun onStart() {
         startPrayerXp = Skills.experience(Skill.Prayer)
-        addNotedPosition("castle_wars_bank", EctofunctusConstants.CASTLE_WARS_BANK_TILE)
-        addNotedPosition("grinder", EctofunctusConstants.GRINDER_TILE)
-        addNotedPosition("ectofuntus", EctofunctusConstants.ECTOFUNTUS_TILE)
-        setNotedValue("batch_size", EctofunctusConstants.DEFAULT_BATCH_SIZE)
-
-        val head = ShouldBank()
-        val processDecision = head.setLeft(ShouldProcessBones())
-        val worshipDecision = processDecision.setLeft(ShouldWorship())
-        worshipDecision.setLeft(IdleTask())
-
-        head.setRight(BankTask(this))
-        processDecision.setRight(ProcessBonesTask(this))
-        worshipDecision.setRight(WorshipTask(this))
+        shouldBank = ShouldBank()
+        shouldProcessBones = ShouldProcessBones()
+        shouldWorship = ShouldWorship()
+        bankTask = BankTask(this)
+        processBonesTask = ProcessBonesTask(this)
+        worshipTask = WorshipTask(this)
+        idleTask = IdleTask()
 
         addPaint(
             PaintBuilder.newBuilder()
                 .trackSkill(Skill.Prayer)
-                .addString("Status") { getTaskDescription() ?: "Initializing" }
+                .addString("Status") { taskDescription }
                 .build()
         )
-
-        setHead(head)
     }
 
     override fun poll() {
-        if (!hasHeadBeenSet()) return
-        traverseTree()
-        super.poll()
+        val selectedTask: Task = when {
+            shouldBank.validate() -> bankTask
+            shouldProcessBones.validate() -> processBonesTask
+            shouldWorship.validate() -> worshipTask
+            else -> idleTask
+        }
+        taskDescription = selectedTask.toString()
+        Condition.sleep(selectedTask.execute())
     }
 }
-
