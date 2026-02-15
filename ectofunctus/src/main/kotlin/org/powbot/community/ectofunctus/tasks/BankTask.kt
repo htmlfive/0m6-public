@@ -9,39 +9,38 @@ import org.powbot.api.rt4.Movement
 import org.powbot.api.rt4.Players
 import org.powbot.api.rt4.bank.Quantity
 import org.powbot.community.api.WaitUtils
+import org.powbot.community.ectofunctus.Ectofunctus
 import org.powbot.community.ectofunctus.EctofunctusConstants.BUCKET_OF_SLIME
 import org.powbot.community.ectofunctus.EctofunctusConstants.DEFAULT_BATCH_SIZE
 import org.powbot.community.ectofunctus.EctofunctusConstants.DRAGON_BONES
 import org.powbot.community.ectofunctus.EctofunctusConstants.EMPTY_BUCKET
 import org.powbot.community.ectofunctus.EctofunctusConstants.RING_OF_DUELING
 import org.powbot.community.ectofunctus.EctofunctusConstants.ECTO_TOKEN
-import org.powbot.community.mixology.structure.ScriptRecord
-import org.powbot.community.mixology.structure.TreeTask
 import java.util.logging.Logger
 
-class BankTask(private val record: ScriptRecord) : TreeTask(true) {
+class BankTask(private val script: Ectofunctus) : Task {
     private val logger = Logger.getLogger(BankTask::class.java.name)
-    private val batchSize = record.getNotedValue("batch_size").takeIf { it > 0 } ?: DEFAULT_BATCH_SIZE
+    private val batchSize = script.batchSize.takeIf { it > 0 } ?: DEFAULT_BATCH_SIZE
 
     override fun execute(): Int {
-        if (!travelToBank()) return super.execute()
-        if (!openBank()) return super.execute()
+        if (!travelToBank()) return 300
+        if (!openBank()) return 300
         depositEmptyContainers()
         if (!ensureRingEquipped()) {
             logger.warning("Unable to equip a ring of dueling(8); continuing without teleport safety.")
         }
         if (!withdrawSupplies()) {
             logger.severe("Missing supplies in bank, stopping script.")
-            record.controller.stop()
-            return super.execute()
+            script.controller.stop()
+            return 300
         }
         Bank.close()
         Condition.wait({ !Bank.opened() }, 200, 10)
-        return super.execute()
+        return 250
     }
 
     private fun travelToBank(): Boolean {
-        val bankTile = record.getNotedPosition("castle_wars_bank") ?: return false
+        val bankTile = script.castleWarsBankTile
         if (isNear(bankTile)) return true
 
         teleportToCastleWars(bankTile)
@@ -143,7 +142,7 @@ class BankTask(private val record: ScriptRecord) : TreeTask(true) {
         }, 400, 15)
         if (!received) {
             logger.severe("Insufficient $name. Stopping script.")
-            record.controller.stop()
+            script.controller.stop()
         }
         return received
     }

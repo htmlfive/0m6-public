@@ -7,6 +7,7 @@ import org.powbot.api.rt4.Movement
 import org.powbot.api.rt4.Objects
 import org.powbot.api.rt4.Players
 import org.powbot.community.api.WaitUtils
+import org.powbot.community.ectofunctus.Ectofunctus
 import org.powbot.community.ectofunctus.EctofunctusConstants.BIN_NAME
 import org.powbot.community.ectofunctus.EctofunctusConstants.DRAGON_BONEMEAL
 import org.powbot.community.ectofunctus.EctofunctusConstants.DRAGON_BONES
@@ -14,38 +15,30 @@ import org.powbot.community.ectofunctus.EctofunctusConstants.ECTOPHIAL
 import org.powbot.community.ectofunctus.EctofunctusConstants.EMPTY_ACTION
 import org.powbot.community.ectofunctus.EctofunctusConstants.GRINDER_NAME
 import org.powbot.community.ectofunctus.EctofunctusConstants.LOADER_NAME
-import org.powbot.community.ectofunctus.EctofunctusConstants.WIND_ACTION
-import org.powbot.community.mixology.structure.ScriptRecord
-import org.powbot.community.mixology.structure.TreeTask
 import java.util.logging.Logger
 
-class ProcessBonesTask(private val record: ScriptRecord) : TreeTask(true) {
+class ProcessBonesTask(private val script: Ectofunctus) : Task {
     private val logger = Logger.getLogger(ProcessBonesTask::class.java.name)
     private val windTile = Tile(3659, 3524, 1)
 
     override fun execute(): Int {
-        val grinderTile = record.getNotedPosition("grinder")
-        if (grinderTile == null) {
-            logger.severe("Grinder tile not configured, stopping script.")
-            record.controller.stop()
-            return super.execute()
-        }
+        val grinderTile = script.grinderTile
         if (!ensureAtGrinder(grinderTile)) {
-            return super.execute()
+            return 300
         }
         while (Inventory.stream().name(DRAGON_BONES).isNotEmpty()) {
             val bonemealBefore = Inventory.stream().name(DRAGON_BONEMEAL).count()
             if (!loadBone()) break
             if (!windAndEmpty(bonemealBefore)) break
         }
-        return super.execute()
+        return 250
     }
 
     private fun ensureAtGrinder(grinderTile: Tile): Boolean {
         if (isAtTile(grinderTile, 2)) return true
-        val nearEctoTile = record.getNotedPosition("ectofuntus")
+        val nearEctoTile = script.ectofuntusTile
         val farFromGrinder = Players.local().tile().distanceTo(grinderTile) > 20
-        val nearEctofuntus = nearEctoTile?.let { Players.local().tile().distanceTo(it) <= 8 } ?: false
+        val nearEctofuntus = Players.local().tile().distanceTo(nearEctoTile) <= 8
         if (farFromGrinder && !nearEctofuntus) {
             tryTeleportToEctofuntusBase()
         }
@@ -60,7 +53,7 @@ class ProcessBonesTask(private val record: ScriptRecord) : TreeTask(true) {
     }
 
     private fun tryTeleportToEctofuntusBase(): Boolean {
-        val baseTile = record.getNotedPosition("ectofuntus") ?: return false
+        val baseTile = script.ectofuntusTile
         val ectophial = Inventory.stream().name(ECTOPHIAL).first()
         if (!ectophial.valid()) return false
         if (!ectophial.interact("Empty")) {

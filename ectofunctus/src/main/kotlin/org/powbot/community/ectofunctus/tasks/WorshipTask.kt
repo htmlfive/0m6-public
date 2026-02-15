@@ -10,26 +10,20 @@ import org.powbot.api.rt4.Npcs
 import org.powbot.api.rt4.Objects
 import org.powbot.api.rt4.Players
 import org.powbot.community.api.WaitUtils
+import org.powbot.community.ectofunctus.Ectofunctus
 import org.powbot.community.ectofunctus.EctofunctusConstants.BUCKET_OF_SLIME
 import org.powbot.community.ectofunctus.EctofunctusConstants.DRAGON_BONEMEAL
 import org.powbot.community.ectofunctus.EctofunctusConstants.ECTO_TOKEN
 import org.powbot.community.ectofunctus.EctofunctusConstants.ECTOPHIAL
 import org.powbot.community.ectofunctus.EctofunctusConstants.GHOST_DISCIPLE
 import org.powbot.community.ectofunctus.EctofunctusConstants.WORSHIP_OBJECT
-import org.powbot.community.mixology.structure.ScriptRecord
-import org.powbot.community.mixology.structure.TreeTask
 import java.util.logging.Logger
 
-class WorshipTask(private val record: ScriptRecord) : TreeTask(true) {
+class WorshipTask(private val script: Ectofunctus) : Task {
     private val logger = Logger.getLogger(WorshipTask::class.java.name)
 
     override fun execute(): Int {
-        val ectoTile = record.getNotedPosition("ectofuntus")
-        if (ectoTile == null) {
-            logger.severe("Ectofuntus tile not configured; stopping script.")
-            record.controller.stop()
-            return super.execute()
-        }
+        val ectoTile = script.ectofuntusTile
         ensureNearEctofuntus(ectoTile)
         while (canWorship()) {
             if (!worshipOnce()) {
@@ -39,7 +33,7 @@ class WorshipTask(private val record: ScriptRecord) : TreeTask(true) {
         if (Inventory.stream().name(DRAGON_BONEMEAL).isEmpty()) {
             collectEctoTokens()
         }
-        return super.execute()
+        return 250
     }
 
     private fun canWorship(): Boolean {

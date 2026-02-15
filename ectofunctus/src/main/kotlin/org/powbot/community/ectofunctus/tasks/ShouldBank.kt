@@ -4,10 +4,9 @@ import org.powbot.api.rt4.Inventory
 import org.powbot.community.ectofunctus.EctofunctusConstants.BUCKET_OF_SLIME
 import org.powbot.community.ectofunctus.EctofunctusConstants.DRAGON_BONES
 import org.powbot.community.ectofunctus.EctofunctusConstants.DRAGON_BONEMEAL
-import org.powbot.community.mixology.structure.TreeTask
 
-class ShouldBank : TreeTask(false) {
-    override fun validate(): Boolean {
+class ShouldBank {
+    fun validate(): Boolean {
         val bones = Inventory.stream().name(DRAGON_BONES).count().toInt()
         val bonemeal = Inventory.stream().name(DRAGON_BONEMEAL).count().toInt()
         val slime = Inventory.stream().name(BUCKET_OF_SLIME).count().toInt()
@@ -17,7 +16,5 @@ class ShouldBank : TreeTask(false) {
 
         return noSupplies || missingSlime || noSlimeForBones
     }
-
-    override fun toString(): String = "Evaluating if bank is needed"
 }
 
