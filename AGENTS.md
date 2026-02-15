@@ -87,6 +87,50 @@ Notes:
   - Short website description
 - After SW review, add assigned `scriptId` to `@ScriptManifest`.
 
+## Fork And PR Workflow (Required)
+
+Use this exact flow when publishing to `powbot/community-scripts`:
+
+1. Ensure fork exists:
+   - `gh repo fork powbot/community-scripts --clone=false --remote=false`
+2. Clone your fork (or update existing clone):
+   - `git clone https://github.com/<your-user>/community-scripts.git`
+3. Add/update upstream remote:
+   - `git remote add upstream https://github.com/powbot/community-scripts.git`
+   - `git fetch upstream`
+4. Start from upstream main:
+   - `git checkout -B script/<script-name> upstream/main`
+5. Copy only the target script folder into the fork repo:
+   - `<script-name>/...`
+6. Commit one script per branch:
+   - `git add <script-name>`
+   - `git commit -m "Update <script-name> community script"`
+7. Push branch to fork:
+   - `git push -u origin script/<script-name>`
+8. Open PR to upstream:
+   - base: `powbot/community-scripts:main`
+   - head: `<your-user>:script/<script-name>`
+9. Never bundle multiple script folders in one PR.
+
+PR command example:
+
+```powershell
+gh pr create `
+  --repo powbot/community-scripts `
+  --base main `
+  --head <your-user>:script/<script-name> `
+  --title "script: <Script Display Name>" `
+  --body @"
+Script name: <Script Display Name>
+
+Description:
+<Detailed script behavior and features>
+
+Short description:
+<Website short description>
+"@
+```
+
 ## New Script Checklist
 
 When adding a new community script, do these in order:
