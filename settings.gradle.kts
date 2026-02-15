@@ -1,0 +1,16 @@
+rootProject.name = "community-scripts-workspace"
+
+includeBuild("baggedplants")
+includeBuild("barbarianfishing")
+includeBuild("ectofunctus")
+includeBuild("herblore")
+includeBuild("herbrun")
+includeBuild("ironmandailies")
+includeBuild("libationprayer")
+includeBuild("lumbyfires")
+includeBuild("maplefletcher")
+includeBuild("mortmyre")
+includeBuild("pohcake")
+includeBuild("squidharpooner")
+includeBuild("wallsafe")
+includeBuild("winebuyer")
