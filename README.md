@@ -1,2 +1,33 @@
-All scripts come as is, bugs and all
-Best to review the code to learn how to use it. Some are pretty specific.
+# PowBot Community-Style Script Repo
+
+This repository is structured to match the `powbot/community-scripts` pattern:
+
+- Each script project lives in its own top-level folder.
+- Each folder contains its own Gradle build files and source tree.
+
+## Projects
+
+- `baggedplants/`
+- `barbarianfishing/`
+- `ectofunctus/`
+- `herblore/`
+- `herbrun/`
+- `ironmandailies/`
+- `libationprayer/`
+- `lumbyfires/`
+- `maplefletcher/`
+- `mortmyre/`
+- `pohcake/`
+- `squidharpooner/`
+- `wallsafe/`
+- `winebuyer/`
+
+Legacy consolidated project:
+- `Om6Public/`
+
+## Build
+
+```powershell
+cd <script-folder>
+.\gradlew.bat jar
+```
