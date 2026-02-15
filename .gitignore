@@ -2,3 +2,12 @@
 build/
 .idea/
 _community_scripts_ref/
+/build.gradle.kts
+/gradle.properties
+/gradlew
+/gradlew.bat
+/settings.gradle.kts
+/build/
+/.idea/
+/.gradle/
+/.github/

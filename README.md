@@ -31,3 +31,14 @@ Legacy consolidated project:
 cd <script-folder>
 .\gradlew.bat jar
 ```
+
+## Workspace Gradle (Root)
+
+You can now run Gradle from repo root as a composite build:
+
+```powershell
+.\gradlew.bat tasks
+.\gradlew.bat :pohcake:classes
+.\gradlew.bat :winebuyer:jar
+.\gradlew.bat classesAll
+```

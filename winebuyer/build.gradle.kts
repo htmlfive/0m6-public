@@ -1,6 +1,7 @@
 plugins {
     id("java")
     kotlin("jvm")
+    application
 }
 
 group = "org.powbot.community.winebuyer"
@@ -8,6 +9,7 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+    google()
     maven("https://repo.powbot.org/releases")
 }
 
@@ -30,4 +32,15 @@ kotlin {
 
 tasks.jar {
     archiveBaseName.set("Winebuyer")
+}
+
+application {
+    mainClass.set("org.powbot.community.winebuyer.WineBuyerKt")
+}
+
+tasks.register<JavaExec>("runLocal") {
+    group = "application"
+    description = "Runs winebuyer locally (invokes startScript)."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("org.powbot.community.winebuyer.WineBuyerKt")
 }

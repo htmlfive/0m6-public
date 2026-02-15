@@ -1,6 +1,7 @@
 plugins {
     id("java")
     kotlin("jvm")
+    application
 }
 
 group = "org.powbot.community.squidharpooner"
@@ -8,6 +9,7 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+    google()
     maven("https://repo.powbot.org/releases")
 }
 
@@ -30,4 +32,15 @@ kotlin {
 
 tasks.jar {
     archiveBaseName.set("Squidharpooner")
+}
+
+application {
+    mainClass.set("org.powbot.community.squidharpooner.SquidHarpoonerKt")
+}
+
+tasks.register<JavaExec>("runLocal") {
+    group = "application"
+    description = "Runs squidharpooner locally (invokes startScript)."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("org.powbot.community.squidharpooner.SquidHarpoonerKt")
 }

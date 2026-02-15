@@ -6,17 +6,16 @@ import org.powbot.api.rt4.Inventory
 import org.powbot.api.rt4.Movement
 import org.powbot.api.rt4.Objects
 import org.powbot.api.rt4.Players
+import org.powbot.community.maplefletcher.MapleFletcher
 import org.powbot.community.maplefletcher.MapleFletcherConstants
-import org.powbot.community.mixology.structure.ScriptRecord
-import org.powbot.community.mixology.structure.TreeTask
 import java.util.logging.Logger
 
-class ChopMaples(private val record: ScriptRecord) : TreeTask(true) {
+class ChopMaples(private val script: MapleFletcher) : Task {
     private val logger = Logger.getLogger(ChopMaples::class.java.name)
 
     override fun execute(): Int {
-        if (Inventory.isFull()) return super.execute()
-        if (!ensureAtTrees()) return super.execute()
+        if (Inventory.isFull()) return 250
+        if (!ensureAtTrees()) return 300
 
         val tree = Objects.stream()
             .name(MapleFletcherConstants.MAPLE_TREE_NAME)
@@ -26,8 +25,7 @@ class ChopMaples(private val record: ScriptRecord) : TreeTask(true) {
 
         if (!tree.valid()) {
             logger.fine("No maple tree found nearby.")
-            Condition.sleep(getShortSleepTime())
-            return super.execute()
+            return 300
         }
 
         if (!tree.inViewport()) {
@@ -54,17 +52,16 @@ class ChopMaples(private val record: ScriptRecord) : TreeTask(true) {
                 val logsAfter = Inventory.stream().name(MapleFletcherConstants.MAPLE_LOG_NAME).count(true).toInt()
                 if (logsAfter > logsBefore) {
                     val gained = logsAfter - logsBefore
-                    val current = record.getNotedValue("logs_cut")
-                    record.setNotedValue("logs_cut", current + gained)
+                    script.logsCut += gained
                 }
             }
         }
 
-        return super.execute()
+        return 250
     }
 
     private fun ensureAtTrees(): Boolean {
-        val treeTile = record.getNotedPosition("maple_tree_tile") ?: MapleFletcherConstants.TREE_TILE
+        val treeTile = script.treeTile
         if (treeTile.distance() <= MapleFletcherConstants.TREE_RADIUS) return true
         if (Movement.step(treeTile)) {
             Condition.wait(

@@ -1,6 +1,7 @@
 plugins {
     id("java")
     kotlin("jvm")
+    application
 }
 
 group = "org.powbot.community.wallsafe"
@@ -8,6 +9,7 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+    google()
     maven("https://repo.powbot.org/releases")
 }
 
@@ -30,4 +32,15 @@ kotlin {
 
 tasks.jar {
     archiveBaseName.set("Wallsafe")
+}
+
+application {
+    mainClass.set("org.powbot.community.wallsafe.WallSafeCrackerKt")
+}
+
+tasks.register<JavaExec>("runLocal") {
+    group = "application"
+    description = "Runs wallsafe locally (invokes startScript)."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("org.powbot.community.wallsafe.WallSafeCrackerKt")
 }

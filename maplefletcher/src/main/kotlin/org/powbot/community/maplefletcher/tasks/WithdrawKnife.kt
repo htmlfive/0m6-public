@@ -4,20 +4,19 @@ import org.powbot.api.Condition
 import org.powbot.api.rt4.Bank
 import org.powbot.api.rt4.Inventory
 import org.powbot.api.rt4.Movement
+import org.powbot.community.maplefletcher.MapleFletcher
 import org.powbot.community.maplefletcher.MapleFletcherConstants
-import org.powbot.community.mixology.structure.ScriptRecord
-import org.powbot.community.mixology.structure.TreeTask
 import java.util.logging.Logger
 
-class WithdrawKnife(private val record: ScriptRecord) : TreeTask(true) {
+class WithdrawKnife(private val script: MapleFletcher) : Task {
     private val logger = Logger.getLogger(WithdrawKnife::class.java.name)
 
     override fun execute(): Int {
-        if (!walkToBank()) return super.execute()
+        if (!walkToBank()) return 300
         if (!Bank.opened()) {
             if (!Bank.open()) {
                 logger.warning("Unable to open bank to withdraw knife.")
-                return super.execute()
+                return 300
             }
             Condition.wait({ Bank.opened() }, 200, 10)
         }
@@ -33,11 +32,11 @@ class WithdrawKnife(private val record: ScriptRecord) : TreeTask(true) {
             }
         }
         Bank.close()
-        return super.execute()
+        return 250
     }
 
     private fun walkToBank(): Boolean {
-        val bankTile = record.getNotedPosition("maple_bank_tile") ?: MapleFletcherConstants.BANK_TILE
+        val bankTile = script.bankTile
         if (bankTile.distance() <= MapleFletcherConstants.BANK_RADIUS) return true
         if (Movement.step(bankTile)) {
             Condition.wait(
