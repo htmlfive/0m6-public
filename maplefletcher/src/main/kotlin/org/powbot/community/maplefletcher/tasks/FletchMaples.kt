@@ -4,27 +4,26 @@ import org.powbot.api.Condition
 import org.powbot.api.rt4.Component
 import org.powbot.api.rt4.Components
 import org.powbot.api.rt4.Inventory
+import org.powbot.community.maplefletcher.MapleFletcher
 import org.powbot.community.maplefletcher.MapleFletcherConstants
-import org.powbot.community.mixology.structure.ScriptRecord
-import org.powbot.community.mixology.structure.TreeTask
 import java.util.logging.Logger
 
-class FletchMaples(private val record: ScriptRecord) : TreeTask(true) {
+class FletchMaples(private val script: MapleFletcher) : Task {
     private val logger = Logger.getLogger(FletchMaples::class.java.name)
 
     override fun execute(): Int {
         if (Inventory.stream().name(MapleFletcherConstants.MAPLE_LOG_NAME).isEmpty()) {
             logger.fine("No maple logs to fletch.")
-            return super.execute()
+            return 250
         }
         if (!ensureFletchingInterface()) {
             logger.warning("Unable to open fletching interface.")
-            return super.execute()
+            return 300
         }
         val option = findMapleOption()
         if (option == null) {
             logger.warning("Unable to locate Maple longbow (u) option.")
-            return super.execute()
+            return 300
         }
         val bowsBefore = Inventory.stream().name(MapleFletcherConstants.MAPLE_LONGBOW_NAME).count(true).toInt()
         if (option.interact("Make All") || option.click()) {
@@ -39,11 +38,10 @@ class FletchMaples(private val record: ScriptRecord) : TreeTask(true) {
             val bowsAfter = Inventory.stream().name(MapleFletcherConstants.MAPLE_LONGBOW_NAME).count(true).toInt()
             if (bowsAfter > bowsBefore) {
                 val crafted = bowsAfter - bowsBefore
-                val total = record.getNotedValue("bows_made")
-                record.setNotedValue("bows_made", total + crafted)
+                script.bowsMade += crafted
             }
         }
-        return super.execute()
+        return 250
     }
 
     private fun ensureFletchingInterface(): Boolean {
