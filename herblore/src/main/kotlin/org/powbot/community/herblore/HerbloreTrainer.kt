@@ -25,6 +25,7 @@ import org.powbot.community.herblore.tasks.MakeUnfinishedPotionsTask
     description = "Bankstanding herblore script with herb cleaning, unfinished potions, and finished potions.",
     version = "1.0.1",
     author = "0m6",
+    scriptId = "df6937f5-321c-48df-bf23-a572558da98d",
     category = ScriptCategory.Herblore
 )
 @ScriptConfiguration.List(
