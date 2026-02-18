@@ -30,7 +30,7 @@ private const val RAW_JUMP_SQUID = "Raw jump squid"
     description = "Harpoons squid and cuts swordtip/jump squid with a knife when inventory is full",
     version = "1.0.0",
     author = "0m6",
-    scriptId = "",
+    scriptId = "c30dd999-78ae-4f46-a430-fb937eb15fd8",
     category = ScriptCategory.Fishing
 )
 @ScriptConfiguration.List(
