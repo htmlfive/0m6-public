@@ -21,6 +21,7 @@ import org.powbot.community.maplefletcher.tasks.WithdrawKnife
     description = "Chops maple logs, fletches Maple longbow (u), and banks them for endless training.",
     version = "1.0.0",
     author = "0m6",
+    scriptId = "750e7c78-d811-45f3-a2c7-0f23417a9804",
     category = ScriptCategory.Woodcutting
 )
 class MapleFletcher : AbstractScript() {
