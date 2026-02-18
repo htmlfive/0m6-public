@@ -23,6 +23,7 @@ import org.powbot.community.api.ScriptLogging
     description = "Cracks wall safe, drinks wine at 20-30 HP, banks loot, and restocks wine.",
     version = "1.0.1",
     author = "0m6",
+    scriptId = "3d217b61-1b9d-40f0-9896-b351918e1ff1",
     category = ScriptCategory.Thieving
 )
 @ScriptConfiguration.List(
