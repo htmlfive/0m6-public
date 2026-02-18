@@ -22,6 +22,7 @@ import org.powbot.community.ectofunctus.tasks.WorshipTask
     description = "Grinds dragon bones, worships the Ectofuntus, and restocks from Castle Wars automatically.",
     version = "1.0.0",
     author = "0m6",
+    scriptId = "55f01d50-a4d2-4c34-a628-5b73d0bb38bc",
     category = ScriptCategory.Prayer
 )
 class Ectofunctus : AbstractScript() {
