@@ -25,7 +25,7 @@ import kotlin.random.Random
     description = "Lights all available logs in Lumbridge, then hops to a non-specialty world when no logs remain.",
     version = "1.0.0",
     author = "0m6",
-    scriptId = "",
+    scriptId = "d09629b6-632c-4c8d-815d-5185e5f0bdfd",
     category = ScriptCategory.Firemaking
 )
 @ScriptConfiguration.List(
