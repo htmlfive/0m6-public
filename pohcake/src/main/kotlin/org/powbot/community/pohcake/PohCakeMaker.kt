@@ -35,6 +35,7 @@ private const val OPTION_FLOUR = "Flour"
     description = "Makes cakes in POH using the larder and fancy range.",
     version = "1.0.0",
     author = "0m6",
+    scriptId = "5bd2afac-1364-45af-b512-d64002d2180e",
     category = ScriptCategory.Cooking
 )
 class PohCakeMaker : AbstractScript() {
