@@ -26,6 +26,7 @@ interface DailyTask {
     description = "Runs configured Ironman daily tasks in sequence.",
     version = "1.1.2",
     author = "0m6",
+    scriptId = "5a314a37-1bde-42d5-aca4-ff535d5e3f03",
     category = ScriptCategory.Other
 )
 @ScriptConfiguration.List(
