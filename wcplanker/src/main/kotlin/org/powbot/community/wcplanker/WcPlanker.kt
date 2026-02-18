@@ -21,6 +21,7 @@ import org.powbot.community.api.ScriptLogging
     description = "Withdraw logs, run to sawmill, buy planks, return to bank, and deposit planks.",
     version = "1.0.0",
     author = "0m6",
+    scriptId = "b2cca274-dec6-47e5-8d5a-79687ae6174a",
     category = ScriptCategory.Construction
 )
 @ScriptConfiguration.List(
