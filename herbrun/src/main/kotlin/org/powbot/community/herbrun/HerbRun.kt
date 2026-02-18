@@ -155,6 +155,7 @@ private object HerbRunUi {
     description = "Configurable herb run with patch toggles + inventory driven supplies.",
     version = "1.0.0",
     author = "0m6",
+    scriptId = "ad2c8fce-1197-4207-98e5-0ec35d16ea19",
     category = org.powbot.api.script.ScriptCategory.Farming
 )
 @ScriptConfiguration.List(
