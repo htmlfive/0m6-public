@@ -25,6 +25,7 @@ import org.powbot.community.libationprayer.util.LibationConstants
     description = "Banks wine and bone shards, blesses at Exposed altar, and sacrifices at Libation bowl.",
     version = "1.0.0",
     author = "0m6",
+    scriptId = "a38fe6a2-dccf-441e-909f-0e5991533345",
     category = ScriptCategory.Prayer
 )
 @ScriptConfiguration.List(
