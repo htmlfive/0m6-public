@@ -12,6 +12,7 @@ import kotlin.random.Random
     description = "Removes and rebuilds plants",
     version = "1.0.0",
     author = "0m6",
+    scriptId = "e6a4ade3-7f1c-4701-8fa4-e246c2dd96e9",
     category = ScriptCategory.Farming
 )
 class BaggedPlants : AbstractScript() {
