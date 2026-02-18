@@ -33,7 +33,7 @@ private const val HOP_NOW_CHECKBOX_ID = "barbarian_fishing_hop_now_checkbox"
     description = "Uses rod on Fishing spot and cuts all Leaping fish with a knife",
     version = "1.0.0",
     author = "0m6",
-    scriptId = "",
+    scriptId = "6daa6c2d-c086-4916-815d-f5a3a4b093e1",
     category = ScriptCategory.Fishing
 )
 @ScriptConfiguration.List(
