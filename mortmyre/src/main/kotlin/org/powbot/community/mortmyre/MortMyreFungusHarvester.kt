@@ -27,6 +27,7 @@ import org.powbot.community.mortmyre.tasks.WalkToRefreshPoolTask
     description = "Harvests Mort myre fungus via Bloom, restores prayer at pool, and banks.",
     version = "1.0.1",
     author = "0m6",
+    scriptId = "46b3918b-65c8-4a57-b0ba-925cda4307e9",
     category = ScriptCategory.Other
 )
 @ScriptConfiguration.List(
