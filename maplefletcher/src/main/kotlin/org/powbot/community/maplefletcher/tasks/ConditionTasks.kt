@@ -5,9 +5,15 @@ import org.powbot.community.maplefletcher.MapleFletcherConstants
 
 class ShouldBank {
     fun validate(): Boolean {
-        val hasBows = Inventory.stream().name(MapleFletcherConstants.MAPLE_LONGBOW_NAME).isNotEmpty()
         val hasLogs = Inventory.stream().name(MapleFletcherConstants.MAPLE_LOG_NAME).isNotEmpty()
-        return hasBows || (Inventory.isFull() && !hasLogs)
+        val hasBankableItems = Inventory.stream()
+            .filtered {
+                val name = it.name()
+                name != MapleFletcherConstants.KNIFE_NAME &&
+                    !name.contains("axe", ignoreCase = true)
+            }
+            .isNotEmpty()
+        return !hasLogs && hasBankableItems
     }
 }
 
