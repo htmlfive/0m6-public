@@ -20,18 +20,31 @@ class BankBows(private val script: MapleFletcher) : Task {
             }
             Condition.wait({ Bank.opened() }, 200, 10)
         }
-        val bowsInInventory = Inventory.stream().name(MapleFletcherConstants.MAPLE_LONGBOW_NAME)
-        val bowCount = bowsInInventory.count(true).toInt()
-        if (bowCount > 0) {
-            if (Bank.depositAllExcept(MapleFletcherConstants.KNIFE_NAME)) {
+
+        val protectedNames = mutableSetOf(MapleFletcherConstants.KNIFE_NAME, MapleFletcherConstants.MAPLE_LOG_NAME)
+        Inventory.stream()
+            .filtered { it.name().contains("axe", ignoreCase = true) }
+            .toList()
+            .forEach { protectedNames.add(it.name()) }
+
+        val craftedItemCount = Inventory.stream()
+            .filtered { !protectedNames.contains(it.name()) }
+            .count(true)
+            .toInt()
+        if (craftedItemCount > 0) {
+            if (Bank.depositAllExcept(*protectedNames.toTypedArray())) {
                 Condition.wait(
-                    { Inventory.stream().name(MapleFletcherConstants.MAPLE_LONGBOW_NAME).isEmpty() },
+                    {
+                        Inventory.stream()
+                            .filtered { !protectedNames.contains(it.name()) }
+                            .isEmpty()
+                    },
                     200,
                     10
                 )
-                script.bowsBanked += bowCount
+                script.bowsBanked += craftedItemCount
             } else {
-                logger.warning("Failed to deposit Maple longbow (u).")
+                logger.warning("Failed to deposit crafted items.")
             }
         }
         if (Inventory.stream().name(MapleFletcherConstants.KNIFE_NAME).isEmpty()) {
