@@ -22,7 +22,7 @@ import org.powbot.community.maplefletcher.tasks.WithdrawKnife
 @ScriptManifest(
     name = "0m6 Maple Fletcher",
     description = "Chops maple logs, fletches configurable maple products, and banks them for endless training.",
-    version = "1.0.0",
+    version = "1.0.1",
     author = "0m6",
     scriptId = "750e7c78-d811-45f3-a2c7-0f23417a9804",
     category = ScriptCategory.Woodcutting
