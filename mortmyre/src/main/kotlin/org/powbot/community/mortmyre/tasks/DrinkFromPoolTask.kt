@@ -10,7 +10,8 @@ import org.powbot.community.mortmyre.config.Constants
 class DrinkFromPoolTask(script: MortMyreFungusHarvester, name: String) : Task(script, name) {
 
     override fun activate(): Boolean {
-        return script.shouldReturnToPool() && script.isNearPoolTile() && script.isPrayerDepleted()
+        if (!script.isNearPoolTile()) return false
+        return script.isPrayerDepleted() || script.shouldDrinkBeforeBank()
     }
 
     override fun execute() {

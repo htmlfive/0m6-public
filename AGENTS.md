@@ -81,6 +81,7 @@ Notes:
 
 - One branch per script: `script/<script-name>`
 - One PR per script folder.
+- For any update to an existing script, bump `@ScriptManifest.version` by `0.0.1` in the same change.
 - PR body must include:
   - Script name
   - Description/features

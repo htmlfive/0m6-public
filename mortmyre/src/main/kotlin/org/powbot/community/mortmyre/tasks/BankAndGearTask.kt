@@ -14,8 +14,8 @@ class BankAndGearTask(script: MortMyreFungusHarvester, name: String) : Task(scri
 
     override fun activate(): Boolean {
         if (!script.isNearPoolTile()) return false
-        if (script.isPrayerDepleted()) return false
-        return script.hasFungusInInventory() || script.needsRingAction() || !hasSickleInInventory()
+        if (script.shouldDrinkBeforeBank()) return false
+        return script.needsBankingOrGear()
     }
 
     override fun execute() {
@@ -132,7 +132,7 @@ class BankAndGearTask(script: MortMyreFungusHarvester, name: String) : Task(scri
     }
 
     private fun hasSickleInInventory(): Boolean {
-        return Inventory.stream().name(Constants.SICKLE_NAME).isNotEmpty()
+        return script.hasSickleInInventory()
     }
 
     private fun logAction(message: String) {
