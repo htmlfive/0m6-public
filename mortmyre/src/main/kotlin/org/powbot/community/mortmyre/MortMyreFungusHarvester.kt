@@ -6,6 +6,8 @@ import org.powbot.api.rt4.Inventory
 import org.powbot.api.rt4.Objects
 import org.powbot.api.rt4.Players
 import org.powbot.api.rt4.Prayer
+import org.powbot.api.rt4.Skills
+import org.powbot.api.rt4.walking.model.Skill
 import org.powbot.api.script.AbstractScript
 import org.powbot.api.script.OptionType
 import org.powbot.api.script.ScriptCategory
@@ -25,7 +27,7 @@ import org.powbot.community.mortmyre.tasks.WalkToRefreshPoolTask
 @ScriptManifest(
     name = "0m6 Mort Myre Fungus Harvester",
     description = "Harvests Mort myre fungus via Bloom, restores prayer at pool, and banks.",
-    version = "1.0.1",
+    version = "1.0.2",
     author = "0m6",
     scriptId = "46b3918b-65c8-4a57-b0ba-925cda4307e9",
     category = ScriptCategory.Other
@@ -109,6 +111,8 @@ class MortMyreFungusHarvester : AbstractScript() {
 
     fun isPrayerDepleted(): Boolean = Prayer.prayerPoints() <= 0
 
+    fun isPrayerFull(): Boolean = Prayer.prayerPoints() >= Skills.realLevel(Skill.Prayer)
+
     fun isAtBloomTile(): Boolean = Players.local().tile() == Constants.BLOOM_TILE
 
     fun isNearPoolTile(distance: Int = 6): Boolean {
@@ -119,12 +123,22 @@ class MortMyreFungusHarvester : AbstractScript() {
         return Inventory.stream().name(Constants.FUNGUS_NAME).isNotEmpty()
     }
 
+    fun hasSickleInInventory(): Boolean {
+        return Inventory.stream().name(Constants.SICKLE_NAME).isNotEmpty()
+    }
+
     fun isRingEquipped(): Boolean {
         val ring = Equipment.itemAt(Equipment.Slot.RING)
         return ring.valid() && ring.name().contains(Constants.RING_NAME_CONTAINS, ignoreCase = true)
     }
 
     fun needsRingAction(): Boolean = !isRingEquipped()
+
+    fun needsBankingOrGear(): Boolean {
+        return hasFungusInInventory() || needsRingAction() || !hasSickleInInventory()
+    }
+
+    fun shouldDrinkBeforeBank(): Boolean = needsBankingOrGear() && !isPrayerFull()
 
     fun hasNearbyPickableFungus(): Boolean {
         return Objects.stream()
