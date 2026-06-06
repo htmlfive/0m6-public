@@ -1,0 +1,104 @@
+package org.powbot.community.communitypowersalvage
+
+import org.powbot.api.Condition
+import org.powbot.api.rt4.Game
+import org.powbot.api.rt4.walking.model.Skill
+import org.powbot.api.script.*
+import org.powbot.api.script.paint.PaintBuilder
+import org.powbot.community.api.ScriptLogging
+import org.powbot.community.communitypowersalvage.tasks.base.Task
+import org.powbot.community.communitypowersalvage.tasks.execution.DeployHookTask
+import org.powbot.community.communitypowersalvage.tasks.execution.DropSalvageTask
+import org.powbot.community.communitypowersalvage.tasks.execution.WorldHopTask
+import kotlin.random.Random
+import org.powbot.api.script.ScriptConfiguration.List as ConfigList
+
+@ScriptManifest(
+    name = "0m6 Community Power-Salvage",
+    description = "Salvages any shipwreck at the nearest hook and drops all salvage. Simple power-salvage loop.",
+    version = "1.0.0",
+    author = "0m6",
+    scriptId = "8e0276aa-4861-4fd0-a2f0-5e5abeb2594f",
+    category = ScriptCategory.Other
+)
+@ConfigList(
+    [
+        ScriptConfiguration(
+            "Salvaging Hook",
+            "Type of salvaging hook to deploy.",
+            optionType = OptionType.STRING,
+            defaultValue = "Adamant salvaging hook",
+            allowedValues = ["Bronze salvaging hook", "Iron salvaging hook", "Steel salvaging hook", "Mithril salvaging hook", "Adamant salvaging hook", "Rune salvaging hook", "Dragon salvaging hook"]
+        ),
+        ScriptConfiguration(
+            "Cargo Hold Tier",
+            "Tier of cargo hold on your ship.",
+            optionType = OptionType.STRING,
+            defaultValue = "Mahogany cargo hold",
+            allowedValues = ["Basic cargo hold", "Oak cargo hold", "Teak cargo hold", "Mahogany cargo hold", "Camphor cargo hold", "Ironwood cargo hold", "Rosewood cargo hold"]
+        ),
+        ScriptConfiguration(
+            "Hop worlds if no shipwreck?",
+            "Hop to a random world when no active shipwreck is found.",
+            optionType = OptionType.BOOLEAN, defaultValue = "true"
+        ),
+    ]
+)
+class CommunityPowerSalvage : AbstractScript() {
+    val salvagingHookName: String get() = getOption<String>("Salvaging Hook")
+    val cargoHoldTierDisplayName: String get() = getOption<String>("Cargo Hold Tier")
+    val hopWorlds: Boolean get() = getOption<Boolean>("Hop worlds if no shipwreck?")
+    @Volatile var status: String = "Waiting"
+    private val allTasks: List<Task> by lazy {
+        listOf(
+            WorldHopTask(this),
+            DropSalvageTask(this),
+            DeployHookTask(this)
+        )
+    }
+
+    override fun onStart() {
+        ScriptLogging.info(logger, "Community Power-Salvage starting...")
+
+        addPaint(
+            PaintBuilder.newBuilder()
+                .x(40).y(80)
+                .addString("Status") { status }
+                .trackSkill(Skill.Sailing)
+                .build()
+        )
+
+        Condition.sleep(Random.nextInt(600, 1200))
+    }
+
+    override fun poll() {
+        ScriptLogging.info(logger, "POLL: status=${status}")
+
+        if (!Game.loggedIn()) {
+            stopScript("Logged out. Stopping script.")
+            return
+        }
+
+        try {
+            for (task in allTasks) {
+                if (task.activate()) {
+                    task.execute()
+                    return
+                }
+            }
+            Condition.sleep(300)
+        } catch (e: Exception) {
+            ScriptLogging.error(logger, "Error in poll: ${e.message}")
+            Condition.sleep(1000)
+        }
+    }
+
+    fun stopScript(reason: String) {
+        ScriptLogging.stopWithNotification(this, reason)
+    }
+}
+
+fun main() {
+    val script = CommunityPowerSalvage()
+    script.startScript("127.0.0.1", "0m6", false)
+}
