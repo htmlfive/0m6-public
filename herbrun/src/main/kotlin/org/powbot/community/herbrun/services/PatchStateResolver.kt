@@ -4,6 +4,13 @@ import org.powbot.api.rt4.GameObject
 import org.powbot.community.herbrun.HerbRun
 
 internal class PatchStateResolver {
+
+    private val herbNames = setOf(
+        "guam", "marrentill", "tarromin", "harralander", "goutweed",
+        "ranarr weed", "toadflax", "irit", "avantoe", "kwuarm",
+        "huasca", "snapdragon", "cadantine", "lantadyme", "dwarf weed", "torstol"
+    )
+
     internal fun resolve(patchObject: GameObject): HerbRun.PatchState {
         if (patchObject == GameObject.Nil || !patchObject.valid()) {
             return HerbRun.PatchState.UNKNOWN
@@ -19,8 +26,8 @@ internal class PatchStateResolver {
             actions.any { it.contains("pick") || it.contains("harvest") } -> HerbRun.PatchState.READY_TO_HARVEST
             actions.any { it.contains("rake") } -> HerbRun.PatchState.NEEDS_WEEDING
             actions.any { it.contains("plant") } -> HerbRun.PatchState.EMPTY_SOIL
-            hasInspect && name.contains("herb patch") -> HerbRun.PatchState.EMPTY_SOIL
-            hasInspect && name.contains("herbs") -> HerbRun.PatchState.GROWING
+            hasInspect && name == "herb patch" -> HerbRun.PatchState.EMPTY_SOIL
+            name in herbNames || name == "herbs" -> HerbRun.PatchState.GROWING
             else -> HerbRun.PatchState.GROWING
         }
     }
