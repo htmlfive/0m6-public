@@ -158,7 +158,7 @@ private object HerbRunUi {
 @ScriptManifest(
     name = "0m6 Herb Run",
     description = "Configurable herb run with patch toggles + inventory driven supplies.",
-    version = "1.0.3",
+    version = "1.0.5",
     author = "0m6",
     category = org.powbot.api.script.ScriptCategory.Farming
 )
@@ -1302,16 +1302,6 @@ class HerbRun : AbstractScript() {
 
     private fun findPatchObject(patch: HerbPatch?): GameObject {
         if (patch == null) return GameObject.Nil
-        patch.herbPatchObjectId?.let { objectId ->
-            val byId = Objects.stream()
-                .id(objectId)
-                .within(patch.tile, 14.0)
-                .nearest()
-                .firstOrNull()
-            if (byId != null && byId.valid()) {
-                return byId
-            }
-        }
         val targetNames = arrayOf(
             "Herb patch",
             "Herbs",
@@ -1335,20 +1325,20 @@ class HerbRun : AbstractScript() {
         )
         val byName = Objects.stream()
             .name(*targetNames)
-            .within(patch.tile, 14.0)
+            .within(patch.tile, 2.0)
             .nearest()
             .firstOrNull()
         if (byName != null && byName.valid()) {
             return byName
         }
         val byAction = Objects.stream()
-            .within(patch.tile, 14.0)
+            .within(patch.tile, 2.0)
             .filtered { obj ->
                 val actions = obj.actions().map { it.lowercase() }
-                actions.any { it == "pick" || it == "harvest" }
+                actions.any { it == "pick" || it == "harvest" || it == "cure" || it == "clear" }
             }
             .minByOrNull { it.tile().distanceTo(patch.tile) }
-        if (byAction != null && byAction.valid() && byAction.tile().distanceTo(patch.tile) <= 2.0) {
+        if (byAction != null && byAction.valid()) {
             return byAction
         }
         return GameObject.Nil
