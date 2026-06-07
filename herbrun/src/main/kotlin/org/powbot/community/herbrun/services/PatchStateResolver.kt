@@ -14,6 +14,7 @@ internal class PatchStateResolver {
         val hasInspect = actions.any { it.contains("inspect") }
 
         return when {
+            actions.any { it.contains("cure") } || "diseased" in name -> HerbRun.PatchState.DISEASED
             "dead" in name || actions.any { it.contains("clear") } -> HerbRun.PatchState.DEAD
             actions.any { it.contains("pick") || it.contains("harvest") } -> HerbRun.PatchState.READY_TO_HARVEST
             actions.any { it.contains("rake") } -> HerbRun.PatchState.NEEDS_WEEDING
@@ -24,4 +25,3 @@ internal class PatchStateResolver {
         }
     }
 }
-

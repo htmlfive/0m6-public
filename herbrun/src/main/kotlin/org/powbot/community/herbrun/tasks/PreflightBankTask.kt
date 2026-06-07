@@ -14,4 +14,3 @@ class PreflightBankTask(script: HerbRun) : HerbRunTask(script, "Preflight Bank")
         script.performPreflightBanking()
     }
 }
-

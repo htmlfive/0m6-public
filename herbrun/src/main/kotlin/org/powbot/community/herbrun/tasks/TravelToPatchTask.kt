@@ -14,4 +14,3 @@ class TravelToPatchTask(script: HerbRun) : HerbRunTask(script, "Travel To Patch"
         script.travelToActivePatch()
     }
 }
-

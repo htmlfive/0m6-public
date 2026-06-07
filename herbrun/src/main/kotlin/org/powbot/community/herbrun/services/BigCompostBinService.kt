@@ -54,7 +54,7 @@ class BigCompostBinService(
 
         val firstBucketBatch = useItemOnBigCompostBin(BUCKET_NAME)
         logInfo("Used first bucket batch on bin: $firstBucketBatch")
-        if (!waitForInventoryItemZero(BUCKET_NAME, BIG_COMPOST_BUCKET_EMPTY_TIMEOUT_MS)) {
+        if (!waitForInventoryItemZero(BUCKET_NAME)) {
             logWarn("Timed out waiting for buckets to reach 0 after first take batch.")
             return
         }
@@ -65,7 +65,7 @@ class BigCompostBinService(
             if (!openBigCompostBin()) return
             val secondBucketBatch = useItemOnBigCompostBin(BUCKET_NAME)
             logInfo("Used second bucket batch on bin: $secondBucketBatch")
-            if (!waitForInventoryItemZero(BUCKET_NAME, BIG_COMPOST_BUCKET_EMPTY_TIMEOUT_MS)) {
+            if (!waitForInventoryItemZero(BUCKET_NAME)) {
                 logWarn("Timed out waiting for buckets to reach 0 after second take batch.")
                 return
             }
@@ -77,7 +77,7 @@ class BigCompostBinService(
             if (!openBigCompostBin()) return
             val filled = useItemOnBigCompostBin(PINEAPPLE_NAME)
             logInfo("Applied pineapple batch $batch/2: $filled")
-            if (!waitForInventoryItemZero(PINEAPPLE_NAME, BIG_COMPOST_BUCKET_EMPTY_TIMEOUT_MS)) {
+            if (!waitForInventoryItemZero(PINEAPPLE_NAME)) {
                 logWarn("Timed out waiting for pineapples to reach 0 after batch $batch.")
                 return
             }
@@ -210,9 +210,8 @@ class BigCompostBinService(
         return Inventory.stream().name(name).count(true).toInt()
     }
 
-    private fun waitForInventoryItemZero(name: String, timeoutMs: Long): Boolean {
-        val polls = (timeoutMs / 300L).coerceAtLeast(1L).toInt()
+    private fun waitForInventoryItemZero(name: String): Boolean {
+        val polls = (BIG_COMPOST_BUCKET_EMPTY_TIMEOUT_MS / 300L).coerceAtLeast(1L).toInt()
         return Condition.wait({ countInventoryItem(name) == 0 }, 300, polls)
     }
 }
-

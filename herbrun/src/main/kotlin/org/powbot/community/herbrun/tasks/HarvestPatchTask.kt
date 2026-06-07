@@ -14,4 +14,3 @@ class HarvestPatchTask(script: HerbRun) : HerbRunTask(script, "Harvest Patch") {
         script.harvestCurrentPatch()
     }
 }
-

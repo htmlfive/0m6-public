@@ -24,6 +24,8 @@ class HerbRunConfigFactory(private val logWarn: (String) -> Unit) {
         val startWithPickpocket: String,
         val pickpocketWineWithdraw: String,
         val pickpocketHealDeficit: String,
+        val pickpocketFoodName: String,
+        val pickpocketSkipCooldownIfFarmingGuildDone: String,
         val masterFarmerTile: String
     )
 
@@ -34,7 +36,8 @@ class HerbRunConfigFactory(private val logWarn: (String) -> Unit) {
         getInt: (String) -> Int?,
         defaultMasterFarmerTile: Tile,
         defaultPickpocketWineWithdrawCount: Int,
-        defaultPickpocketHealDeficit: Int
+        defaultPickpocketHealDeficit: Int,
+        defaultPickpocketFoodName: String
     ): HerbRunConfig {
         val herbChoice = (getString(keys.herbType) ?: "Ranarr").trim()
         val herbType = HerbType.fromOption(herbChoice)
@@ -64,6 +67,9 @@ class HerbRunConfigFactory(private val logWarn: (String) -> Unit) {
         val pickpocketBetweenRuns = getBoolean(keys.pickpocketBetweenRuns) ?: false
         val enableLimpwurtFarming = getBoolean(keys.enableLimpwurtFarming) ?: false
         val startWithPickpocket = getBoolean(keys.startWithPickpocket) ?: false
+        val pickpocketFoodName = getString(keys.pickpocketFoodName)?.trim().orEmpty()
+            .ifEmpty { defaultPickpocketFoodName }
+        val pickpocketSkipCooldownIfFarmingGuildDone = getBoolean(keys.pickpocketSkipCooldownIfFarmingGuildDone) ?: false
         val pickpocketWineWithdrawAmount = (getInt(keys.pickpocketWineWithdraw) ?: defaultPickpocketWineWithdrawCount).coerceAtLeast(1)
         val pickpocketHealHpDeficit = (getInt(keys.pickpocketHealDeficit) ?: defaultPickpocketHealDeficit).coerceAtLeast(0)
         val pickpocketMasterFarmerTile = parseTileOption(
@@ -85,6 +91,8 @@ class HerbRunConfigFactory(private val logWarn: (String) -> Unit) {
             pickpocketBetweenRuns = pickpocketBetweenRuns,
             enableLimpwurtFarming = enableLimpwurtFarming,
             startWithPickpocket = startWithPickpocket,
+            pickpocketFoodName = pickpocketFoodName,
+            pickpocketSkipCooldownIfFarmingGuildDone = pickpocketSkipCooldownIfFarmingGuildDone,
             pickpocketWineWithdrawAmount = pickpocketWineWithdrawAmount,
             pickpocketHealHpDeficit = pickpocketHealHpDeficit,
             pickpocketMasterFarmerTile = pickpocketMasterFarmerTile
@@ -119,4 +127,3 @@ class HerbRunConfigFactory(private val logWarn: (String) -> Unit) {
         return Tile(x, y, plane)
     }
 }
-

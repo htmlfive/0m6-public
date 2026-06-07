@@ -14,4 +14,3 @@ class PickpocketTask(script: HerbRun) : HerbRunTask(script, "Between-Run Pickpoc
         script.performBetweenRunPickpocketing()
     }
 }
-

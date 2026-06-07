@@ -14,4 +14,3 @@ class DeadPatchTask(script: HerbRun) : HerbRunTask(script, "Clear Dead Patch") {
         script.clearDeadPatchTask()
     }
 }
-

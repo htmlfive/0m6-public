@@ -62,4 +62,3 @@ class HerbRunUiService(private val script: org.powbot.community.herbrun.HerbRun)
         }
     }
 }
-

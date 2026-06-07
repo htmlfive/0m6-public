@@ -52,6 +52,8 @@ private const val OPTION_NOTE_HERBS = "Note Herbs"
 private const val OPTION_PICKPOCKET_BETWEEN_RUNS = "Pickpocket Between Runs"
 private const val OPTION_PICKPOCKET_ENABLE_LIMPWURT = "Enable Limpwurt farming"
 private const val OPTION_START_WITH_PICKPOCKET = "Start Pickpocketing"
+private const val OPTION_PICKPOCKET_FOOD_NAME = "Pickpocket Food"
+private const val OPTION_SKIP_COOLDOWN_IF_FARMING_GUILD_DONE = "Skip cooldown if Farming Guild done"
 private const val OPTION_PICKPOCKET_WINE_WITHDRAW = "Pickpocket Wine Withdraw Amount"
 private const val OPTION_PICKPOCKET_HEAL_DEFICIT = "Pickpocket Heal Deficit"
 private const val OPTION_PICKPOCKET_DROP_LIST = "Pickpocket Drop List"
@@ -71,8 +73,9 @@ private const val COOLDOWN_WITH_COMPOST_BIN_MINUTES = 90L
 private val FARMING_GUILD_BANK_TILE = Tile(1253, 3741, 0)
 private val DEFAULT_MASTER_FARMER_TILE = Tile(1261, 3729, 0)
 private const val DEFAULT_MASTER_FARMER_TILE_TEXT = "1261,3729,0"
+private const val DEFAULT_PICKPOCKET_FOOD_NAME = "Bass"
 private const val DEFAULT_PICKPOCKET_WINE_WITHDRAW_COUNT = 10
-private const val DEFAULT_PICKPOCKET_HEAL_DEFICIT = 13
+private const val DEFAULT_PICKPOCKET_HEAL_DEFICIT = 16
 private const val DEFAULT_PICKPOCKET_DROP_LIST =
     "Jug, Potato seed, Onion seed, Cabbage seed, Tomato seed, Sweetcorn seed, Strawberry seed, Asgarnian seed, Jute seed, Yanillian seed, Krandorian seed, Wildblood seed, Redberry seed, Cadavaberry seed, Dwellberry seed"
 private const val PICKPOCKET_SIDE_CHECK_INTERVAL_MS = 30_000L
@@ -121,11 +124,13 @@ private object HerbRunUi {
         PAGE_PICKPOCKET to listOf(
             OPTION_PICKPOCKET_BETWEEN_RUNS,
             OPTION_PICKPOCKET_ENABLE_LIMPWURT,
+            OPTION_PICKPOCKET_FOOD_NAME,
             OPTION_START_WITH_PICKPOCKET,
             OPTION_PICKPOCKET_WINE_WITHDRAW,
             OPTION_PICKPOCKET_HEAL_DEFICIT,
             OPTION_PICKPOCKET_DROP_LIST,
-            OPTION_MASTER_FARMER_TILE
+            OPTION_MASTER_FARMER_TILE,
+            OPTION_SKIP_COOLDOWN_IF_FARMING_GUILD_DONE
         ),
         PAGE_WORLD_HOPPING to listOf(
             OPTION_ENABLE_COOLDOWN_WORLD_HOP,
@@ -153,9 +158,8 @@ private object HerbRunUi {
 @ScriptManifest(
     name = "0m6 Herb Run",
     description = "Configurable herb run with patch toggles + inventory driven supplies.",
-    version = "1.0.0",
+    version = "1.0.3",
     author = "0m6",
-    scriptId = "ad2c8fce-1197-4207-98e5-0ec35d16ea19",
     category = org.powbot.api.script.ScriptCategory.Farming
 )
 @ScriptConfiguration.List(
@@ -207,7 +211,7 @@ private object HerbRunUi {
         ScriptConfiguration(
             name = OPTION_FALLBACK_SEED_1,
             description = "First fallback herb seed type when primary runs out.",
-            defaultValue = "Avantoe",
+            defaultValue = "Harralander",
             optionType = OptionType.STRING,
             allowedValues = [
                 "None",
@@ -257,7 +261,7 @@ private object HerbRunUi {
         ScriptConfiguration(
             name = OPTION_FALLBACK_SEED_3,
             description = "Third fallback herb seed type when earlier priorities run out.",
-            defaultValue = "Harralander",
+            defaultValue = "Avantoe",
             optionType = OptionType.STRING,
             allowedValues = [
                 "None",
@@ -346,7 +350,7 @@ private object HerbRunUi {
             name = OPTION_ADDITIONAL_WITHDRAWALS,
             description = "Additional items to withdraw when banking. Format: Item:Amount, Item2:Amount",
             optionType = OptionType.STRING,
-            defaultValue = "Law rune:10, Air rune:100, Fire rune:100, Earth rune:100, Water rune:100",
+            defaultValue = "Ectophial:1,Law rune:10, Air rune:100, Fire rune:100, Earth rune:100, Water rune:100",
             visible = false
         ),
         ScriptConfiguration(
@@ -360,7 +364,7 @@ private object HerbRunUi {
             name = OPTION_REQUIRES_SEED_DIBBER,
             description = "If enabled, keep/withdraw a seed dibber for planting.",
             optionType = OptionType.BOOLEAN,
-            defaultValue = "false",
+            defaultValue = "true",
             visible = false
         ),
         ScriptConfiguration(
@@ -392,6 +396,13 @@ private object HerbRunUi {
             visible = false
         ),
         ScriptConfiguration(
+            name = OPTION_PICKPOCKET_FOOD_NAME,
+            description = "Food item to eat while stunned during pickpocketing.",
+            optionType = OptionType.STRING,
+            defaultValue = DEFAULT_PICKPOCKET_FOOD_NAME,
+            visible = false
+        ),
+        ScriptConfiguration(
             name = OPTION_START_WITH_PICKPOCKET,
             description = "Start in the pickpocket phase first, then begin herb runs after cooldown.",
             optionType = OptionType.BOOLEAN,
@@ -400,14 +411,14 @@ private object HerbRunUi {
         ),
         ScriptConfiguration(
             name = OPTION_PICKPOCKET_WINE_WITHDRAW,
-            description = "How many Jug of wine to withdraw before pickpocketing.",
+            description = "How many food items to withdraw before pickpocketing.",
             optionType = OptionType.INTEGER,
             defaultValue = DEFAULT_PICKPOCKET_WINE_WITHDRAW_COUNT.toString(),
             visible = false
         ),
         ScriptConfiguration(
             name = OPTION_PICKPOCKET_HEAL_DEFICIT,
-            description = "Drink wine while stunned when HP is this much under max.",
+            description = "Eat food while stunned when HP is this much under max.",
             optionType = OptionType.INTEGER,
             defaultValue = DEFAULT_PICKPOCKET_HEAL_DEFICIT.toString(),
             visible = false
@@ -424,6 +435,13 @@ private object HerbRunUi {
             description = "Comma-separated item names to drop while stunned during pickpocketing.",
             optionType = OptionType.STRING,
             defaultValue = DEFAULT_PICKPOCKET_DROP_LIST,
+            visible = false
+        ),
+        ScriptConfiguration(
+            name = OPTION_SKIP_COOLDOWN_IF_FARMING_GUILD_DONE,
+            description = "If Farming Guild herb patch is ready to harvest, skip cooldown and start next run early.",
+            optionType = OptionType.BOOLEAN,
+            defaultValue = "true",
             visible = false
         ),
         ScriptConfiguration(
@@ -622,6 +640,7 @@ class HerbRun : AbstractScript() {
             EmptyPatchTask(this),
             HarvestPatchTask(this),
             DeadPatchTask(this),
+            CurePatchTask(this),
             GrowingPatchTask(this),
             UnknownPatchTask(this)
         )
@@ -633,6 +652,7 @@ class HerbRun : AbstractScript() {
         GROWING,
         READY_TO_HARVEST,
         DEAD,
+        DISEASED,
         UNKNOWN
     }
 
@@ -718,14 +738,14 @@ class HerbRun : AbstractScript() {
         }
         runConfigPaintRows = paintBuilder.items.subList(runConfigRowsStart, paintBuilder.items.size).toList()
         if (!showRunConfig) {
-            toggleRunConfig(show = false)
+            toggleRunConfig()
         }
         trackedItemInsertIndex = paintBuilder.items.size
         val trackedRowsStart = paintBuilder.items.size
         paintBuilder.trackInventoryItems(*TRACKED_MASTER_FARMER_SEED_IDS)
         trackedItemPaintRows = paintBuilder.items.subList(trackedRowsStart, paintBuilder.items.size).toList()
         if (!showTrackedItems) {
-            toggleTrackedItems(show = false)
+            toggleTrackedItems()
         }
         val paint = paintBuilder
             .trackSkill(Skill.Farming)
@@ -930,6 +950,7 @@ class HerbRun : AbstractScript() {
     internal fun pickpocketSetSetupPending(value: Boolean) {
         pickpocketSetupPending = value
     }
+    @Suppress("unused")
     internal fun pickpocketLastLimpwurtCheckAtMillis(): Long = lastPickpocketLimpwurtCheckAtMillis
     internal fun pickpocketSetLastLimpwurtCheckAtMillis(value: Long) {
         lastPickpocketLimpwurtCheckAtMillis = value
@@ -951,6 +972,23 @@ class HerbRun : AbstractScript() {
     internal fun pickpocketIsNearGuildBank(): Boolean = isNearFarmingGuildBank()
     internal fun pickpocketDepositInventory(): Boolean = depositInventoryWithRetries()
     internal fun pickpocketWithdrawByName(name: String, amount: Int): Boolean = withdrawByNameWithRetries(name, amount)
+    internal fun pickpocketFoodName(): String = config.pickpocketFoodName
+    internal fun pickpocketSkipCooldownIfFarmingGuildDone(): Boolean =
+        config.pickpocketSkipCooldownIfFarmingGuildDone
+    internal fun pickpocketFarmingGuildHarvestable(): Boolean {
+        val guildPatch = HerbPatch.FARMING_GUILD
+        val obj = findPatchObject(guildPatch)
+        if (obj == GameObject.Nil) return false
+        val actions = obj.actions().map { it.lowercase() }
+        return actions.any { it.contains("pick") || it.contains("harvest") }
+    }
+    internal fun pickpocketCheckFarmingGuildReadyAndSkipCooldown() {
+        if (!config.pickpocketSkipCooldownIfFarmingGuildDone) return
+        if (!config.enabledPatches.contains(HerbPatch.FARMING_GUILD)) return
+        if (!pickpocketFarmingGuildHarvestable()) return
+        logInfo("Farming Guild patch ready to harvest; skipping remaining cooldown.")
+        runCycleSetNextRunAt(System.currentTimeMillis())
+    }
     internal fun pickpocketWineWithdrawAmount(): Int = config.pickpocketWineWithdrawAmount
     internal fun pickpocketHealHpDeficit(): Int = config.pickpocketHealHpDeficit
     internal fun pickpocketDropItems(): Array<String> = pickpocketDropItems.toTypedArray()
@@ -1075,6 +1113,29 @@ class HerbRun : AbstractScript() {
         invalidatePatchContext()
     }
 
+    fun shouldHandleDiseasedPatch(): Boolean = getPatchContext()?.state == PatchState.DISEASED
+
+    fun handleDiseasedPatchTask() {
+        val ctx = getPatchContext() ?: return
+        if (curePatch(ctx.patch, ctx.patchObject)) {
+            val refreshed = findPatchObject(ctx.patch)
+            if (refreshed != GameObject.Nil) {
+                val refreshedState = determinePatchState(refreshed)
+                when (refreshedState) {
+                    PatchState.EMPTY_SOIL -> handleEmptyPatch(ctx.patch, refreshed)
+                    PatchState.READY_TO_HARVEST -> harvestPatch(ctx.patch, refreshed)
+                    PatchState.DEAD -> clearDeadPatch(ctx.patch, refreshed)
+                    else -> finishPatch(ctx.patch)
+                }
+            } else {
+                finishPatch(ctx.patch)
+            }
+        } else {
+            finishPatch(ctx.patch)
+        }
+        invalidatePatchContext()
+    }
+
     fun shouldHandleGrowingPatch(): Boolean = getPatchContext()?.state == PatchState.GROWING
 
     fun handleGrowingPatchTask() {
@@ -1148,6 +1209,10 @@ class HerbRun : AbstractScript() {
 
     private fun handleEmptyPatch(patch: HerbPatch, patchObject: GameObject) {
         patchProcessingService.handleEmptyPatch(patch, patchObject)
+    }
+
+    private fun curePatch(patch: HerbPatch, patchObject: GameObject): Boolean {
+        return patchProcessingService.curePatch(patch, patchObject)
     }
 
     private fun applyCompost(patchObject: GameObject): Boolean {
@@ -1249,24 +1314,48 @@ class HerbRun : AbstractScript() {
         }
         val targetNames = arrayOf(
             "Herb patch",
-            "${config.herbType.displayName} patch",
-            config.herbType.displayName,
             "Herbs",
-            "Dead herbs"
+            "Dead herbs",
+            "Guam",
+            "Marrentill",
+            "Tarromin",
+            "Harralander",
+            "Goutweed",
+            "Ranarr weed",
+            "Toadflax",
+            "Irit",
+            "Avantoe",
+            "Kwuarm",
+            "Huasca",
+            "Snapdragon",
+            "Cadantine",
+            "Lantadyme",
+            "Dwarf weed",
+            "Torstol"
         )
-        return Objects.stream()
+        val byName = Objects.stream()
             .name(*targetNames)
             .within(patch.tile, 14.0)
             .nearest()
-            .firstOrNull() ?: GameObject.Nil
+            .firstOrNull()
+        if (byName != null && byName.valid()) {
+            return byName
+        }
+        val byAction = Objects.stream()
+            .within(patch.tile, 14.0)
+            .filtered { obj ->
+                val actions = obj.actions().map { it.lowercase() }
+                actions.any { it == "pick" || it == "harvest" }
+            }
+            .minByOrNull { it.tile().distanceTo(patch.tile) }
+        if (byAction != null && byAction.valid() && byAction.tile().distanceTo(patch.tile) <= 2.0) {
+            return byAction
+        }
+        return GameObject.Nil
     }
 
     private fun determinePatchState(patchObject: GameObject): PatchState {
         return patchStateResolver.resolve(patchObject)
-    }
-
-    private fun restartRunCycle(reasonPrefix: String) {
-        runCycleService.restartRunCycle(reasonPrefix)
     }
 
     internal fun runCyclePatchQueueIsEmpty(): Boolean = patchQueue.isEmpty()
@@ -1390,15 +1479,16 @@ class HerbRun : AbstractScript() {
         uiService.onPaintCheckboxChanged(evt)
     }
 
-    private fun toggleTrackedItems(show: Boolean) {
-        uiService.toggleTrackedItems(show)
+    private fun toggleTrackedItems() {
+        uiService.toggleTrackedItems(false)
     }
 
-    private fun toggleRunConfig(show: Boolean) {
-        uiService.toggleRunConfig(show)
+    private fun toggleRunConfig() {
+        uiService.toggleRunConfig(false)
     }
 
     @ValueChanged(HerbRunUi.CONFIG_PAGE_OPTION)
+    @Suppress("unused")
     fun onConfigurationPageChanged(page: String) {
         updateConfigPageVisibility(page)
     }
@@ -1491,6 +1581,8 @@ class HerbRun : AbstractScript() {
                 startWithPickpocket = OPTION_START_WITH_PICKPOCKET,
                 pickpocketWineWithdraw = OPTION_PICKPOCKET_WINE_WITHDRAW,
                 pickpocketHealDeficit = OPTION_PICKPOCKET_HEAL_DEFICIT,
+                pickpocketFoodName = OPTION_PICKPOCKET_FOOD_NAME,
+                pickpocketSkipCooldownIfFarmingGuildDone = OPTION_SKIP_COOLDOWN_IF_FARMING_GUILD_DONE,
                 masterFarmerTile = OPTION_MASTER_FARMER_TILE
             ),
             getString = { getOption(it) },
@@ -1498,7 +1590,8 @@ class HerbRun : AbstractScript() {
             getInt = { getOption(it) },
             defaultMasterFarmerTile = DEFAULT_MASTER_FARMER_TILE,
             defaultPickpocketWineWithdrawCount = DEFAULT_PICKPOCKET_WINE_WITHDRAW_COUNT,
-            defaultPickpocketHealDeficit = DEFAULT_PICKPOCKET_HEAL_DEFICIT
+            defaultPickpocketHealDeficit = DEFAULT_PICKPOCKET_HEAL_DEFICIT,
+            defaultPickpocketFoodName = DEFAULT_PICKPOCKET_FOOD_NAME
         )
     }
 
@@ -1550,5 +1643,4 @@ class HerbRun : AbstractScript() {
         }
     }
 }
-
 

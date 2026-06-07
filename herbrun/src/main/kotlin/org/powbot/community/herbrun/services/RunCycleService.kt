@@ -49,4 +49,3 @@ class RunCycleService(private val script: org.powbot.community.herbrun.HerbRun) 
         script.runCycleInfo("$reasonPrefix${script.runCycleRunCount()}")
     }
 }
-

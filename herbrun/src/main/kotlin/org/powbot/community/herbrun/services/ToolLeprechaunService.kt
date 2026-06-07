@@ -166,4 +166,3 @@ class ToolLeprechaunService(private val script: HerbRun) {
         return component.interact(action)
     }
 }
-

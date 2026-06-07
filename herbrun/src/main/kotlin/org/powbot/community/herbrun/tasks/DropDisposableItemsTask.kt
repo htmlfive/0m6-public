@@ -14,4 +14,3 @@ class DropDisposableItemsTask(script: HerbRun) : HerbRunTask(script, "Drop Dispo
         script.dropDisposableItems()
     }
 }
-

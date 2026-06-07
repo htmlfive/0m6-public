@@ -32,6 +32,7 @@ class PatchProcessingService(private val script: HerbRun) {
                     }
                     HerbRun.PatchState.READY_TO_HARVEST -> harvestPatch(patch, refreshed)
                     HerbRun.PatchState.DEAD -> clearDeadPatch(patch, refreshed)
+                    HerbRun.PatchState.DISEASED,
                     HerbRun.PatchState.NEEDS_WEEDING,
                     HerbRun.PatchState.UNKNOWN -> {
                         script.patchDebug("${patch.displayName}: Patch state unknown after raking, waiting...")
@@ -100,6 +101,7 @@ class PatchProcessingService(private val script: HerbRun) {
             if (Inventory.isFull() && script.patchShouldNoteHarvest()) {
                 script.patchInfo("${patch.displayName}: Inventory full, noting herbs.")
                 script.patchNoteHerbs(patch)
+                ensureAtPatchBeforeSetup(patch)
             }
 
             val state = script.patchDetermineState(script.patchFindPatchObject(patch))
@@ -118,7 +120,52 @@ class PatchProcessingService(private val script: HerbRun) {
         }
     }
 
+    private fun deselectItem() {
+        val selected = Inventory.selectedItem()
+        if (!selected.valid()) return
+        script.patchDebug("Deselecting item: ${selected.name()}")
+        selected.click()
+        Condition.wait({ !Inventory.selectedItem().valid() }, 150, 8)
+    }
+
+    fun curePatch(patch: HerbPatch, patchObject: GameObject): Boolean {
+        deselectItem()
+        if (Players.local().tile().distanceTo(patch.tile) > 3.0) {
+            script.patchInfo("${patch.displayName}: Walking to diseased patch.")
+            MovementUtils.enableRunIfNeeded()
+            Movement.walkTo(patch.tile)
+            Condition.wait({ Players.local().tile().distanceTo(patch.tile) <= 3.0 }, 250, 30)
+        }
+        val cureItem = Inventory.stream().name("Plant cure").firstOrNull()
+        if (cureItem == null) {
+            script.patchInfo("${patch.displayName}: Patch is diseased but no Plant cure in inventory. Skipping.")
+            return true
+        }
+        script.patchInfo("${patch.displayName}: Curing diseased herbs.")
+        if (!patchObject.interact("Cure")) {
+            return false
+        }
+        Condition.wait(
+            {
+                val refreshed = script.patchFindPatchObject(patch)
+                refreshed == GameObject.Nil || script.patchDetermineState(refreshed) != HerbRun.PatchState.DISEASED
+            },
+            400,
+            20
+        )
+        script.patchResetStatus(patch)
+        script.patchInfo("${patch.displayName}: Cured diseased herbs.")
+        return true
+    }
+
     fun clearDeadPatch(patch: HerbPatch, patchObject: GameObject) {
+        deselectItem()
+        if (Players.local().tile().distanceTo(patch.tile) > 3.0) {
+            script.patchInfo("${patch.displayName}: Walking to dead patch.")
+            MovementUtils.enableRunIfNeeded()
+            Movement.walkTo(patch.tile)
+            Condition.wait({ Players.local().tile().distanceTo(patch.tile) <= 3.0 }, 250, 30)
+        }
         script.patchInfo("${patch.displayName}: Clearing dead herbs.")
         if (!patchObject.interact("Clear")) {
             return
@@ -133,6 +180,13 @@ class PatchProcessingService(private val script: HerbRun) {
     }
 
     private fun rakePatch(patch: HerbPatch, patchObject: GameObject): Boolean {
+        deselectItem()
+        if (Players.local().tile().distanceTo(patch.tile) > 3.0) {
+            script.patchInfo("${patch.displayName}: Walking to patch for raking.")
+            MovementUtils.enableRunIfNeeded()
+            Movement.walkTo(patch.tile)
+            Condition.wait({ Players.local().tile().distanceTo(patch.tile) <= 3.0 }, 250, 30)
+        }
         script.patchInfo("${patch.displayName}: Raking patch.")
         if (!patchObject.interact("Rake")) {
             return false
@@ -251,13 +305,13 @@ class PatchProcessingService(private val script: HerbRun) {
     }
 
     private fun ensureAtPatchBeforeSetup(patch: HerbPatch) {
-        if (Players.local().tile().distanceTo(patch.tile) <= 10.0) {
+        if (Players.local().tile().distanceTo(patch.tile) <= 3.0) {
             return
         }
         script.patchInfo("${patch.displayName}: Returning to herb patch tile before compost/plant.")
         MovementUtils.enableRunIfNeeded()
         Movement.walkTo(patch.tile)
-        Condition.wait({ Players.local().tile().distanceTo(patch.tile) <= 10.0 }, 250, 20)
+        Condition.wait({ Players.local().tile().distanceTo(patch.tile) <= 3.0 }, 250, 30)
     }
 
     private fun selectSeedForPlanting(): String? {
@@ -276,4 +330,3 @@ class PatchProcessingService(private val script: HerbRun) {
         return actions.any { it.equals("Clean", ignoreCase = true) }
     }
 }
-

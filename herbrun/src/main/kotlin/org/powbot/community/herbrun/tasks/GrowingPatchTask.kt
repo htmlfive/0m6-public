@@ -14,4 +14,3 @@ class GrowingPatchTask(script: HerbRun) : HerbRunTask(script, "Patch Growing") {
         script.handleGrowingPatchTask()
     }
 }
-
