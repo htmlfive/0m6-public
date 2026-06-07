@@ -14,4 +14,3 @@ class SelectPatchTask(script: HerbRun) : HerbRunTask(script, "Select Patch") {
         script.selectNextPatch()
     }
 }
-

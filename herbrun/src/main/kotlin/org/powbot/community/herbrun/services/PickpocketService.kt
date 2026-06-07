@@ -12,7 +12,6 @@ import org.powbot.community.herbrun.HerbRun
 import kotlin.random.Random
 
 private const val MASTER_FARMER_NAME = "Master Farmer"
-private const val PICKPOCKET_WINE_NAME = "Jug of wine"
 private const val STUN_PICKPOCKET_COOLDOWN_MIN_MS = 2400L
 private const val STUN_PICKPOCKET_COOLDOWN_MAX_MS = 3000L
 private const val PICKPOCKET_TAP_MIN_DELAY_MS = 90L
@@ -20,10 +19,12 @@ private const val PICKPOCKET_TAP_MAX_DELAY_MS = 200L
 
 class PickpocketService(private val script: HerbRun) {
     fun performBetweenRunPickpocketing() {
+        script.pickpocketCheckFarmingGuildReadyAndSkipCooldown()
+
         val now = System.currentTimeMillis()
         script.pickpocketDebug(
             "Pickpocket tick: anim=${Players.local().animation()} moving=${Players.local().inMotion()} " +
-                "invFull=${Inventory.isFull()} wine=${countPickpocketWine()} " +
+                "invFull=${Inventory.isFull()} food=${countPickpocketFood()} " +
                 "blockedFor=${(script.pickpocketBlockedUntilMillis() - now).coerceAtLeast(0L)}ms"
         )
 
@@ -50,9 +51,9 @@ class PickpocketService(private val script: HerbRun) {
         if (System.currentTimeMillis() < script.pickpocketBlockedUntilMillis()) {
             script.pickpocketSetCurrentTask("Stunned")
             script.pickpocketDebug("Inside stun lockout window")
-            if (shouldDrinkWineWhileStunned()) {
-                script.pickpocketDebug("Stunned: drinking wine")
-                drinkPickpocketWine()
+            if (shouldEatFoodWhileStunned()) {
+                script.pickpocketDebug("Stunned: eating food")
+                eatPickpocketFood()
                 return
             }
             val dropped = dropPickpocketItemsWhileStunned()
@@ -63,9 +64,9 @@ class PickpocketService(private val script: HerbRun) {
             return
         }
 
-        if (shouldDrinkWineWhileStunned()) {
-            script.pickpocketSetCurrentTask("Drinking wine (stunned)")
-            drinkPickpocketWine()
+        if (shouldEatFoodWhileStunned()) {
+            script.pickpocketSetCurrentTask("Eating food (stunned)")
+            eatPickpocketFood()
             return
         }
 
@@ -74,7 +75,7 @@ class PickpocketService(private val script: HerbRun) {
             return
         }
 
-        if (Inventory.isFull() || countPickpocketWine() <= 0) {
+        if (Inventory.isFull() || countPickpocketFood() <= 0) {
             if (Players.local().animation() == 415) {
                 script.pickpocketSetCurrentTask("Waiting for stun to end")
                 script.pickpocketDebug("Banking needed but stun animation still active")
@@ -82,7 +83,7 @@ class PickpocketService(private val script: HerbRun) {
                 return
             }
             script.pickpocketSetCurrentTask("Pickpocket banking")
-            script.pickpocketInfo("Pickpocket banking needed: invFull=${Inventory.isFull()} wine=${countPickpocketWine()}")
+            script.pickpocketInfo("Pickpocket banking needed: invFull=${Inventory.isFull()} food=${countPickpocketFood()}")
             performPickpocketBanking(forceSetup = false)
             return
         }
@@ -162,7 +163,8 @@ class PickpocketService(private val script: HerbRun) {
     }
 
     private fun performPickpocketBanking(forceSetup: Boolean) {
-        script.pickpocketInfo("Pickpocket banking step: forceSetup=$forceSetup invCount=${Inventory.stream().count()} wine=${countPickpocketWine()}")
+        val foodName = script.pickpocketFoodName()
+        script.pickpocketInfo("Pickpocket banking step: forceSetup=$forceSetup invCount=${Inventory.stream().count()} food=${countPickpocketFood()}")
         if (!script.pickpocketIsNearTile(script.pickpocketBankTile())) {
             if (Bank.opened()) {
                 Bank.close()
@@ -198,15 +200,15 @@ class PickpocketService(private val script: HerbRun) {
         }
 
         val withdrawAmount = script.pickpocketWineWithdrawAmount()
-        if (forceSetup || countPickpocketWine() < withdrawAmount) {
-            if (!script.pickpocketWithdrawByName(PICKPOCKET_WINE_NAME, withdrawAmount)) {
-                val reason = "No $PICKPOCKET_WINE_NAME available for between-run pickpocketing."
+        if (forceSetup || countPickpocketFood() < withdrawAmount) {
+            if (!script.pickpocketWithdrawByName(foodName, withdrawAmount)) {
+                val reason = "No $foodName available for between-run pickpocketing."
                 script.pickpocketError(reason)
                 script.pickpocketStop(reason)
                 return
             }
-            Condition.wait({ countPickpocketWine() >= withdrawAmount }, 120, 20)
-            script.pickpocketInfo("Withdrew $PICKPOCKET_WINE_NAME x$withdrawAmount")
+            Condition.wait({ countPickpocketFood() >= withdrawAmount }, 120, 20)
+            script.pickpocketInfo("Withdrew $foodName x$withdrawAmount")
         }
 
         Bank.close()
@@ -216,33 +218,34 @@ class PickpocketService(private val script: HerbRun) {
         }
     }
 
-    private fun shouldDrinkWineWhileStunned(): Boolean {
+    private fun shouldEatFoodWhileStunned(): Boolean {
         val local = Players.local()
         if (local.animation() != 415) {
             return false
         }
-        return Combat.health() <= (Combat.maxHealth() - script.pickpocketHealHpDeficit()) && countPickpocketWine() > 0
+        return Combat.health() <= (Combat.maxHealth() - script.pickpocketHealHpDeficit()) && countPickpocketFood() > 0
     }
 
-    private fun drinkPickpocketWine() {
-        val wine = Inventory.stream().name(PICKPOCKET_WINE_NAME).firstOrNull() ?: return
+    private fun eatPickpocketFood() {
+        val foodName = script.pickpocketFoodName()
+        val food = Inventory.stream().name(foodName).firstOrNull() ?: return
         val beforeHp = Combat.health()
-        val beforeWineCount = countPickpocketWine()
-        script.pickpocketDebug("Drink wine attempt: hp=$beforeHp wineCount=$beforeWineCount")
-        if (!wine.interact("Drink")) {
-            script.pickpocketDebug("Drink wine interact failed")
+        val beforeFoodCount = countPickpocketFood()
+        script.pickpocketDebug("Eat food attempt: hp=$beforeHp foodCount=$beforeFoodCount")
+        if (!food.interact("Eat")) {
+            script.pickpocketDebug("Eat food interact failed")
             return
         }
-        val drank = Condition.wait(
-            { Combat.health() > beforeHp || countPickpocketWine() < beforeWineCount },
+        val ate = Condition.wait(
+            { Combat.health() > beforeHp || countPickpocketFood() < beforeFoodCount },
             120,
             15
         )
-        script.pickpocketDebug("Drink wine result: success=$drank hpNow=${Combat.health()} wineNow=${countPickpocketWine()}")
+        script.pickpocketDebug("Eat food result: success=$ate hpNow=${Combat.health()} foodNow=${countPickpocketFood()}")
     }
 
-    private fun countPickpocketWine(): Int {
-        return Inventory.stream().name(PICKPOCKET_WINE_NAME).count(true).toInt()
+    private fun countPickpocketFood(): Int {
+        return Inventory.stream().name(script.pickpocketFoodName()).count(true).toInt()
     }
 
     private fun randomStunCooldownMillis(): Long {
@@ -281,4 +284,3 @@ class PickpocketService(private val script: HerbRun) {
         return droppedAny
     }
 }
-

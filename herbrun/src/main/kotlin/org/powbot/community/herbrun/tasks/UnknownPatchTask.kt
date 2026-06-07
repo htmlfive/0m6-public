@@ -14,4 +14,3 @@ class UnknownPatchTask(script: HerbRun) : HerbRunTask(script, "Patch Unknown") {
         script.handleUnknownPatchTask()
     }
 }
-

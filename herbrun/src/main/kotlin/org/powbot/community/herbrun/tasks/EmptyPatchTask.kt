@@ -14,4 +14,3 @@ class EmptyPatchTask(script: HerbRun) : HerbRunTask(script, "Compost & Plant") {
         script.handleEmptyPatchTask()
     }
 }
-

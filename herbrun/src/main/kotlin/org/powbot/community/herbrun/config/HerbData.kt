@@ -286,6 +286,8 @@ data class HerbRunConfig(
     val pickpocketBetweenRuns: Boolean,
     val enableLimpwurtFarming: Boolean,
     val startWithPickpocket: Boolean,
+    val pickpocketFoodName: String,
+    val pickpocketSkipCooldownIfFarmingGuildDone: Boolean,
     val pickpocketWineWithdrawAmount: Int,
     val pickpocketHealHpDeficit: Int,
     val pickpocketMasterFarmerTile: Tile
@@ -295,4 +297,3 @@ data class HerbRunConfig(
     val seedPriorityItemNames: List<String>
         get() = listOfNotNull(seedItemName) + fallbackSeedItemNames
 }
-

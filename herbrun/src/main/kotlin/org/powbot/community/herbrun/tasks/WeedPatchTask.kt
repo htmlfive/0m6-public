@@ -14,4 +14,3 @@ class WeedPatchTask(script: HerbRun) : HerbRunTask(script, "Weed Patch") {
         script.weedCurrentPatch()
     }
 }
-

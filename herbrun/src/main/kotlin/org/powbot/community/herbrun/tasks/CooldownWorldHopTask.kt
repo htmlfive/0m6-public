@@ -14,4 +14,3 @@ class CooldownWorldHopTask(script: HerbRun) : HerbRunTask(script, "Cooldown Worl
         script.handleCooldownWorldHopTask()
     }
 }
-

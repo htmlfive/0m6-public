@@ -14,4 +14,3 @@ class BigCompostBinTask(script: HerbRun) : HerbRunTask(script, "Big Compost Bin"
         script.handleBigCompostBinPhase()
     }
 }
-

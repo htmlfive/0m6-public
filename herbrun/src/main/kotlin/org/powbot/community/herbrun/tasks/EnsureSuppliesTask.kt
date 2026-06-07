@@ -14,4 +14,3 @@ class EnsureSuppliesTask(script: HerbRun) : HerbRunTask(script, "Validate Suppli
         script.handleMissingSupplies()
     }
 }
-
