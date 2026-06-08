@@ -158,7 +158,7 @@ private object HerbRunUi {
 @ScriptManifest(
     name = "0m6 Herb Run",
     description = "Configurable herb run with patch toggles + inventory driven supplies.",
-    version = "1.0.5",
+    version = "1.0.6",
     author = "0m6",
     category = org.powbot.api.script.ScriptCategory.Farming
 )
@@ -1325,14 +1325,14 @@ class HerbRun : AbstractScript() {
         )
         val byName = Objects.stream()
             .name(*targetNames)
-            .within(patch.tile, 2.0)
+            .within(patch.tile, 10.0)
             .nearest()
             .firstOrNull()
         if (byName != null && byName.valid()) {
             return byName
         }
         val byAction = Objects.stream()
-            .within(patch.tile, 2.0)
+            .within(patch.tile, 3.0)
             .filtered { obj ->
                 val actions = obj.actions().map { it.lowercase() }
                 actions.any { it == "pick" || it == "harvest" || it == "cure" || it == "clear" }
