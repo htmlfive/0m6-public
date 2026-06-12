@@ -5,7 +5,6 @@ import org.powbot.api.Condition
 import org.powbot.api.Events
 import org.powbot.api.event.PaintCheckboxChangedEvent
 import org.powbot.api.event.RenderEvent
-import org.powbot.api.rt4.Game
 import org.powbot.api.rt4.walking.model.Skill
 import org.powbot.api.script.*
 import org.powbot.api.script.paint.PaintBuilder
@@ -57,6 +56,8 @@ class CommunityPowerSalvage : AbstractScript() {
     val wireframeRenderer: WireframeRenderer by lazy { WireframeRenderer(this) }
     private val renderSubscriber = RenderSubscriber(this)
     @Volatile var status: String = "Waiting"
+    @Volatile var justHopped: Boolean = false
+    private var lastPollLog = 0L
 
     companion object {
         const val WIREFRAME_CHECKBOX_ID = "community_powersalvage_wireframe"
@@ -87,11 +88,10 @@ class CommunityPowerSalvage : AbstractScript() {
     }
 
     override fun poll() {
-        ScriptLogging.info(logger, "POLL: status=${status}")
-
-        if (!Game.loggedIn()) {
-            stopScript("Logged out. Stopping script.")
-            return
+        val pollNow = System.currentTimeMillis()
+        if (pollNow - lastPollLog > 2000) {
+            lastPollLog = pollNow
+            ScriptLogging.info(logger, "POLL: status=${status}")
         }
 
         try {

@@ -74,6 +74,7 @@ class WorldHopTask(script: CommunityPowerSalvage) : Task(script) {
 
                 if (Condition.wait({ Worlds.current() != currentWorld }, 1500, 10)) {
                     ScriptLogging.info(script.logger, "WORLD: Successfully hopped to world: ${Worlds.current().id()}")
+                    script.justHopped = true
                     Condition.wait({ false }, 1200, 1)
                     return
                 }
