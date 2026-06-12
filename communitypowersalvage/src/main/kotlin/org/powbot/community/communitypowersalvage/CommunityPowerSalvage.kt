@@ -1,11 +1,16 @@
 package org.powbot.community.communitypowersalvage
 
+import com.google.common.eventbus.Subscribe
 import org.powbot.api.Condition
+import org.powbot.api.Events
+import org.powbot.api.event.PaintCheckboxChangedEvent
+import org.powbot.api.event.RenderEvent
 import org.powbot.api.rt4.Game
 import org.powbot.api.rt4.walking.model.Skill
 import org.powbot.api.script.*
 import org.powbot.api.script.paint.PaintBuilder
 import org.powbot.community.api.ScriptLogging
+import org.powbot.community.communitypowersalvage.app.WireframeRenderer
 import org.powbot.community.communitypowersalvage.tasks.base.Task
 import org.powbot.community.communitypowersalvage.tasks.execution.DeployHookTask
 import org.powbot.community.communitypowersalvage.tasks.execution.DropSalvageTask
@@ -15,8 +20,8 @@ import org.powbot.api.script.ScriptConfiguration.List as ConfigList
 
 @ScriptManifest(
     name = "0m6 Community Power-Salvage",
-    description = "Salvages any shipwreck at the nearest hook and drops all salvage. Simple power-salvage loop.",
-    version = "1.0.0",
+    description = "Salvages any shipwreck using a skiff at the nearest hook and drops all salvage. Simple power-salvage loop.",
+    version = "1.0.1",
     author = "0m6",
     scriptId = "8e0276aa-4861-4fd0-a2f0-5e5abeb2594f",
     category = ScriptCategory.Other
@@ -48,7 +53,14 @@ class CommunityPowerSalvage : AbstractScript() {
     val salvagingHookName: String get() = getOption<String>("Salvaging Hook")
     val cargoHoldTierDisplayName: String get() = getOption<String>("Cargo Hold Tier")
     val hopWorlds: Boolean get() = getOption<Boolean>("Hop worlds if no shipwreck?")
+    @Volatile var drawWireFrames: Boolean = false
+    val wireframeRenderer: WireframeRenderer by lazy { WireframeRenderer(this) }
+    private val renderSubscriber = RenderSubscriber(this)
     @Volatile var status: String = "Waiting"
+
+    companion object {
+        const val WIREFRAME_CHECKBOX_ID = "community_powersalvage_wireframe"
+    }
     private val allTasks: List<Task> by lazy {
         listOf(
             WorldHopTask(this),
@@ -65,8 +77,11 @@ class CommunityPowerSalvage : AbstractScript() {
                 .x(40).y(80)
                 .addString("Status") { status }
                 .trackSkill(Skill.Sailing)
+                .addCheckbox("Show Wireframes", WIREFRAME_CHECKBOX_ID, false)
                 .build()
         )
+
+        Events.register(renderSubscriber)
 
         Condition.sleep(Random.nextInt(600, 1200))
     }
@@ -93,8 +108,24 @@ class CommunityPowerSalvage : AbstractScript() {
         }
     }
 
+    @Subscribe
+    @Suppress("unused")
+    fun onPaintCheckboxChanged(evt: PaintCheckboxChangedEvent) {
+        if (evt.checkboxId == WIREFRAME_CHECKBOX_ID) {
+            drawWireFrames = evt.checked
+        }
+    }
+
     fun stopScript(reason: String) {
         ScriptLogging.stopWithNotification(this, reason)
+    }
+}
+
+private class RenderSubscriber(private val script: CommunityPowerSalvage) {
+    @Subscribe
+    @Suppress("unused")
+    fun onRender(@Suppress("UNUSED_PARAMETER") evt: RenderEvent) {
+        script.wireframeRenderer.onRender(System.currentTimeMillis())
     }
 }
 

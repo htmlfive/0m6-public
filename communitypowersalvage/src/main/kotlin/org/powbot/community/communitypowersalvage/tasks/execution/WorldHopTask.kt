@@ -30,7 +30,7 @@ class WorldHopTask(script: CommunityPowerSalvage) : Task(script) {
         val validWorlds = Worlds.stream()
             .filtered {
                 it.type() == World.Type.MEMBERS &&
-                        it.specialty() != World.Specialty.NONE &&
+                        it.specialty() == World.Specialty.NONE &&
                         it.number != 318 &&
                         it.number != 569 &&
                         it.specialty() != World.Specialty.BOUNTY_HUNTER
@@ -44,7 +44,7 @@ class WorldHopTask(script: CommunityPowerSalvage) : Task(script) {
             return
         }
 
-        for (world in validWorlds.take(10)) {
+        for (world in validWorlds.take(1)) {
             ScriptLogging.info(script.logger, "WORLD: Attempting to hop to world: ${world.id()}")
 
             if (world.hop()) {
