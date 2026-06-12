@@ -7,6 +7,8 @@ import org.powbot.api.rt4.Objects
 import org.powbot.api.rt4.Players
 import org.powbot.community.api.ScriptLogging
 import org.powbot.community.communitypowersalvage.CommunityPowerSalvage
+import org.powbot.community.communitypowersalvage.config.Constants
+import org.powbot.community.communitypowersalvage.config.sailingAngle
 import org.powbot.community.communitypowersalvage.tasks.base.Task
 
 class DeployHookTask(script: CommunityPowerSalvage) : Task(script) {
@@ -61,7 +63,11 @@ class DeployHookTask(script: CommunityPowerSalvage) : Task(script) {
             return
         }
 
-        hook.bounds(-82, 42, -124, -10, -82, 52)
+        val angle = sailingAngle()
+        val b = Constants.Bounds.forAngle(angle)
+        hook.bounds(b.hX1, b.hX2, b.hY1, b.hY2, b.hZ1, b.hZ2)
+        Condition.wait({ false }, Random.nextInt(300, 600), 1)
+
         if (hook.interact("Deploy")) {
             ScriptLogging.info(script.logger, "DEPLOY: Hook clicked. Waiting for animation...")
             val animated = Condition.wait({ Players.local().animation() != -1 }, Random.nextInt(150, 300), 8)
