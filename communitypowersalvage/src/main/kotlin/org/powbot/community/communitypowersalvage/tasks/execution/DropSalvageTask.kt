@@ -24,7 +24,7 @@ class DropSalvageTask(script: CommunityPowerSalvage) : Task(script) {
 
         ScriptLogging.info(script.logger, "DROP: Dropping ${items.size} salvage items (tapToDrop=${script.tapToDrop})...")
         items.sortedBy { zigzagPriority(it.inventoryIndex()) }.forEach { item ->
-            if (item.valid()) {
+                if (item.valid()) {
                 if (!Inventory.opened()) { Inventory.open() }
                 if (script.tapToDrop) {
                     Game.setMouseActionToggled(true)
