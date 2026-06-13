@@ -3,6 +3,8 @@ package org.powbot.community.communitypowersalvage
 import com.google.common.eventbus.Subscribe
 import org.powbot.api.Condition
 import org.powbot.api.Events
+import org.powbot.api.rt4.Game
+import org.powbot.api.rt4.Inventory
 import org.powbot.api.event.PaintCheckboxChangedEvent
 import org.powbot.api.event.RenderEvent
 import org.powbot.api.rt4.walking.model.Skill
@@ -11,6 +13,7 @@ import org.powbot.api.script.paint.PaintBuilder
 import org.powbot.community.api.ScriptLogging
 import org.powbot.community.communitypowersalvage.app.WireframeRenderer
 import org.powbot.community.communitypowersalvage.tasks.base.Task
+import org.powbot.community.communitypowersalvage.tasks.execution.CameraSetupTask
 import org.powbot.community.communitypowersalvage.tasks.execution.DeployHookTask
 import org.powbot.community.communitypowersalvage.tasks.execution.DropSalvageTask
 import org.powbot.community.communitypowersalvage.tasks.execution.WorldHopTask
@@ -20,7 +23,7 @@ import org.powbot.api.script.ScriptConfiguration.List as ConfigList
 @ScriptManifest(
     name = "0m6 Community Power-Salvage",
     description = "Salvages any shipwreck at the nearest hook and drops all salvage. Simple power-salvage loop.",
-    version = "1.0.3",
+    version = "1.0.4",
     author = "0m6",
     scriptId = "8e0276aa-4861-4fd0-a2f0-5e5abeb2594f",
     category = ScriptCategory.Other
@@ -46,12 +49,18 @@ import org.powbot.api.script.ScriptConfiguration.List as ConfigList
             "Hop to a random world when no active shipwreck is found.",
             optionType = OptionType.BOOLEAN, defaultValue = "true"
         ),
+        ScriptConfiguration(
+            "Tap-to-drop",
+            "Tap-to-drop: If true, enabled tap-to-drop before starting",
+            optionType = OptionType.BOOLEAN, defaultValue = "true"
+        ),
     ]
 )
 class CommunityPowerSalvage : AbstractScript() {
     val salvagingHookName: String get() = getOption<String>("Salvaging Hook")
     val cargoHoldTierDisplayName: String get() = getOption<String>("Cargo Hold Tier")
     val hopWorlds: Boolean get() = getOption<Boolean>("Hop worlds if no shipwreck?")
+    val tapToDrop: Boolean get() = getOption<Boolean>("Tap-to-drop")
     @Volatile var drawWireFrames: Boolean = false
     val wireframeRenderer: WireframeRenderer by lazy { WireframeRenderer(this) }
     private val renderSubscriber = RenderSubscriber(this)
@@ -64,6 +73,7 @@ class CommunityPowerSalvage : AbstractScript() {
     }
     private val allTasks: List<Task> by lazy {
         listOf(
+            CameraSetupTask(this),
             WorldHopTask(this),
             DropSalvageTask(this),
             DeployHookTask(this)
@@ -84,7 +94,12 @@ class CommunityPowerSalvage : AbstractScript() {
 
         Events.register(renderSubscriber)
 
+        Inventory.enableShiftDropping()
+        if (tapToDrop) { Game.setMouseToggleAction(Game.MouseToggleAction.DROP) }
+
         Condition.sleep(Random.nextInt(600, 1200))
+
+        if (tapToDrop) { Game.setMouseActionToggled(true) } else { Game.setMouseActionToggled(false) }
     }
 
     override fun poll() {
