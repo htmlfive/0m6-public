@@ -23,7 +23,7 @@ import org.powbot.api.script.ScriptConfiguration.List as ConfigList
 @ScriptManifest(
     name = "0m6 Community Power-Salvage",
     description = "Salvages any shipwreck at the nearest hook and drops all salvage. Simple power-salvage loop.",
-    version = "1.0.5",
+    version = "1.0.6",
     author = "0m6",
     scriptId = "8e0276aa-4861-4fd0-a2f0-5e5abeb2594f",
     category = ScriptCategory.Other

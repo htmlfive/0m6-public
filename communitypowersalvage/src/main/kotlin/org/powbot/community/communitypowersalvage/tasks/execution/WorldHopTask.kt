@@ -4,6 +4,7 @@ import org.powbot.api.Condition
 import org.powbot.api.Random
 import org.powbot.api.rt4.Camera
 import org.powbot.api.rt4.Components
+import org.powbot.api.rt4.Game
 import org.powbot.api.rt4.Objects
 import org.powbot.api.rt4.World
 import org.powbot.api.rt4.Worlds
