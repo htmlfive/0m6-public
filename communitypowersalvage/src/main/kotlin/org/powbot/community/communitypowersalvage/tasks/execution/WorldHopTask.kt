@@ -1,7 +1,10 @@
 package org.powbot.community.communitypowersalvage.tasks.execution
 
 import org.powbot.api.Condition
+import org.powbot.api.Random
+import org.powbot.api.rt4.Camera
 import org.powbot.api.rt4.Components
+import org.powbot.api.rt4.Game
 import org.powbot.api.rt4.Objects
 import org.powbot.api.rt4.World
 import org.powbot.api.rt4.Worlds
@@ -75,6 +78,12 @@ class WorldHopTask(script: CommunityPowerSalvage) : Task(script) {
                 if (Condition.wait({ Worlds.current() != currentWorld }, 1500, 10)) {
                     ScriptLogging.info(script.logger, "WORLD: Successfully hopped to world: ${Worlds.current().id()}")
                     script.justHopped = true
+                    if (script.tapToDrop) {
+                        Game.setMouseActionToggled(true)
+                    }
+                    val targetPitch = Random.nextInt(90, 101)
+                    ScriptLogging.info(script.logger, "CAMERA: Pitch is ${Camera.pitch()}, setting to $targetPitch")
+                    Camera.pitch(targetPitch)
                     return
                 }
             }
