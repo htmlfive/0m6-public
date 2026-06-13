@@ -2,6 +2,7 @@ package org.powbot.community.communitypowersalvage.tasks.execution
 
 import org.powbot.api.Condition
 import org.powbot.api.Random
+import org.powbot.api.rt4.Game
 import org.powbot.api.rt4.Inventory
 import org.powbot.api.rt4.Players
 import org.powbot.community.api.ScriptLogging
@@ -21,10 +22,30 @@ class DropSalvageTask(script: CommunityPowerSalvage) : Task(script) {
             return
         }
 
-        ScriptLogging.info(script.logger, "DROP: Dropping ${items.size} salvage items...")
-        val dropped = items.size
-        Inventory.drop(items)
-        Condition.sleep(Random.nextInt(200, 400))
-        ScriptLogging.info(script.logger, "DROP: Dropped $dropped items.")
+        ScriptLogging.info(script.logger, "DROP: Dropping ${items.size} salvage items (tapToDrop=${script.tapToDrop})...")
+        items.sortedBy { zigzagPriority(it.inventoryIndex()) }.forEach { item ->
+            if (item.valid()) {
+                Game.setSingleTapToggle(false)
+                if (!Inventory.opened()) { Inventory.open() }
+                if (script.tapToDrop) {
+                    Game.setMouseActionToggled(true)
+                    item.click()
+                    Condition.sleep(Random.nextInt(90, 151))
+                } else {
+                    Game.setMouseActionToggled(false)
+                    item.interact("Drop")
+                    Condition.sleep(Random.nextInt(80, 151))
+                }
+            }
+        }
+        ScriptLogging.info(script.logger, "DROP: Dropped ${items.size} items.")
+    }
+
+    companion object {
+        private fun zigzagPriority(slot: Int): Int {
+            val col = slot % 4
+            val row = slot / 4
+            return if (col < 2) col * 7 + row else (col - 2) * 7 + row + 14
+        }
     }
 }
