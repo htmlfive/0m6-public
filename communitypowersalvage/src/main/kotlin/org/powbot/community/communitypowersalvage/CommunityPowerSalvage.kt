@@ -23,7 +23,7 @@ import org.powbot.api.script.ScriptConfiguration.List as ConfigList
 @ScriptManifest(
     name = "0m6 Community Power-Salvage",
     description = "Salvages any shipwreck at the nearest hook and drops all salvage. Simple power-salvage loop.",
-    version = "1.0.7",
+    version = "1.1.0",
     author = "0m6",
     scriptId = "8e0276aa-4861-4fd0-a2f0-5e5abeb2594f",
     category = ScriptCategory.Other
@@ -34,14 +34,14 @@ import org.powbot.api.script.ScriptConfiguration.List as ConfigList
             "Salvaging Hook",
             "Type of salvaging hook to deploy.",
             optionType = OptionType.STRING,
-            defaultValue = "Adamant salvaging hook",
+            defaultValue = "Bronze salvaging hook",
             allowedValues = ["Bronze salvaging hook", "Iron salvaging hook", "Steel salvaging hook", "Mithril salvaging hook", "Adamant salvaging hook", "Rune salvaging hook", "Dragon salvaging hook"]
         ),
         ScriptConfiguration(
             "Cargo Hold Tier",
             "Tier of cargo hold on your ship.",
             optionType = OptionType.STRING,
-            defaultValue = "Mahogany cargo hold",
+            defaultValue = "Basic cargo hold",
             allowedValues = ["Basic cargo hold", "Oak cargo hold", "Teak cargo hold", "Mahogany cargo hold", "Camphor cargo hold", "Ironwood cargo hold", "Rosewood cargo hold"]
         ),
         ScriptConfiguration(

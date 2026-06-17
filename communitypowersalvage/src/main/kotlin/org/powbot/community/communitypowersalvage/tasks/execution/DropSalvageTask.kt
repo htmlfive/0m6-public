@@ -2,6 +2,7 @@ package org.powbot.community.communitypowersalvage.tasks.execution
 
 import org.powbot.api.Condition
 import org.powbot.api.Random
+import org.powbot.api.rt4.Camera
 import org.powbot.api.rt4.Game
 import org.powbot.api.rt4.Inventory
 import org.powbot.api.rt4.Players
@@ -24,17 +25,23 @@ class DropSalvageTask(script: CommunityPowerSalvage) : Task(script) {
 
         ScriptLogging.info(script.logger, "DROP: Dropping ${items.size} salvage items (tapToDrop=${script.tapToDrop})...")
         items.sortedBy { zigzagPriority(it.inventoryIndex()) }.forEach { item ->
-                if (item.valid()) {
-                if (!Inventory.opened()) { Inventory.open() }
-                if (script.tapToDrop) {
-                    Game.setMouseActionToggled(true)
-                    item.click()
-                    Condition.sleep(Random.nextInt(90, 151))
-                } else {
-                    item.interact("Drop")
-                    Condition.sleep(Random.nextInt(80, 151))
-                }
+            if (!item.valid()) return@forEach
+            if (!Inventory.opened()) { Inventory.open() }
+            if (script.tapToDrop) {
+                item.click()
+            } else {
+                item.interact("Drop")
             }
+            Condition.sleep(Random.nextInt(80, 151))
+        }
+
+        val dropped = Condition.wait({
+            Inventory.stream().filtered { it.name().contains("salvage", ignoreCase = true) }.count() < items.size.toLong()
+        }, Random.nextInt(90, 151), 30)
+
+        if (!dropped) {
+            script.stopScript("DROP: Count stuck at ${items.size} for 3s, stopping.")
+            return
         }
         ScriptLogging.info(script.logger, "DROP: Dropped ${items.size} items.")
     }

@@ -79,6 +79,9 @@ class WorldHopTask(script: CommunityPowerSalvage) : Task(script) {
                     ScriptLogging.info(script.logger, "WORLD: Successfully hopped to world: ${Worlds.current().id()}")
                     script.justHopped = true
                     if (script.tapToDrop) {
+                        if (Game.getMouseToggle() != Game.MouseToggleAction.DROP) {
+                            Game.setMouseToggleAction(Game.MouseToggleAction.DROP)
+                        }
                         Game.setMouseActionToggled(true)
                     }
                     val targetPitch = Random.nextInt(90, 101)
