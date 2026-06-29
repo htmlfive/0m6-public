@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/baggedplants" name="Baggedplants">
+                <projects>
+                  <project path="$PROJECT_DIR$/baggedplants" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/barbarianfishing" name="Barbarianfishing">
+                <projects>
+                  <project path="$PROJECT_DIR$/barbarianfishing" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/ectofunctus" name="Ectofunctus">
+                <projects>
+                  <project path="$PROJECT_DIR$/ectofunctus" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/herblore" name="Herblore">
+                <projects>
+                  <project path="$PROJECT_DIR$/herblore" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/herbrun" name="Herbrun">
+                <projects>
+                  <project path="$PROJECT_DIR$/herbrun" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/ironmandailies" name="Ironmandailies">
+                <projects>
+                  <project path="$PROJECT_DIR$/ironmandailies" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/libationprayer" name="Libationprayer">
+                <projects>
+                  <project path="$PROJECT_DIR$/libationprayer" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/lumbyfires" name="Lumbyfires">
+                <projects>
+                  <project path="$PROJECT_DIR$/lumbyfires" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/maplefletcher" name="Maplefletcher">
+                <projects>
+                  <project path="$PROJECT_DIR$/maplefletcher" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/mortmyre" name="Mortmyre">
+                <projects>
+                  <project path="$PROJECT_DIR$/mortmyre" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/pohcake" name="Pohcake">
+                <projects>
+                  <project path="$PROJECT_DIR$/pohcake" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/squidharpooner" name="Squidharpooner">
+                <projects>
+                  <project path="$PROJECT_DIR$/squidharpooner" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/wallsafe" name="Wallsafe">
+                <projects>
+                  <project path="$PROJECT_DIR$/wallsafe" />
+                </projects>
+              </build>
+              <build path="$PROJECT_DIR$/winebuyer" name="Winebuyer">
+                <projects>
+                  <project path="$PROJECT_DIR$/winebuyer" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/baggedplants" />
+            <option value="$PROJECT_DIR$/barbarianfishing" />
+            <option value="$PROJECT_DIR$/ectofunctus" />
+            <option value="$PROJECT_DIR$/herblore" />
+            <option value="$PROJECT_DIR$/herbrun" />
+            <option value="$PROJECT_DIR$/ironmandailies" />
+            <option value="$PROJECT_DIR$/libationprayer" />
+            <option value="$PROJECT_DIR$/lumbyfires" />
+            <option value="$PROJECT_DIR$/maplefletcher" />
+            <option value="$PROJECT_DIR$/mortmyre" />
+            <option value="$PROJECT_DIR$/pohcake" />
+            <option value="$PROJECT_DIR$/squidharpooner" />
+            <option value="$PROJECT_DIR$/wallsafe" />
+            <option value="$PROJECT_DIR$/winebuyer" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>

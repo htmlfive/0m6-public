@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="1.6">
+      <module name="CommunityPowerSalvage" target="11" />
+      <module name="CommunityPowerSalvage.main" target="11" />
+      <module name="CommunityPowerSalvage.test" target="11" />
+      <module name="Pestcontrol" target="11" />
+      <module name="Pestcontrol.main" target="11" />
+      <module name="Pestcontrol.test" target="11" />
+      <module name="PowerSalvage" target="11" />
+      <module name="PowerSalvage.main" target="11" />
+      <module name="PowerSalvage.test" target="11" />
+      <module name="TearsOfGuthix" target="11" />
+      <module name="TearsOfGuthix.main" target="11" />
+      <module name="TearsOfGuthix.test" target="11" />
+      <module name="WcPlanker" target="11" />
+      <module name="WcPlanker.main" target="11" />
+      <module name="WcPlanker.test" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

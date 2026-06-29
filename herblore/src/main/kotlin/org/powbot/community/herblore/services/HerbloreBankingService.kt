@@ -35,7 +35,7 @@ class HerbloreBankingService(
         onAction?.invoke("Deposit intent: inventory all")
         return retryBankAction {
             if (Inventory.stream().isEmpty()) return@retryBankAction true
-            val depositAllButton = Widgets.component(12, 41)
+            val depositAllButton = Widgets.component(12, 48)
             if (!depositAllButton.valid() || !depositAllButton.click()) return@retryBankAction false
             Condition.wait({ Inventory.stream().isEmpty() }, 120, 25)
         }
